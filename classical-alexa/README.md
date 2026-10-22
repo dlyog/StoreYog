@@ -15,7 +15,7 @@ Echo speaks the reply ◀──── reply text ───────┘       
 
 | Alexa request | What the skill does |
 | --- | --- |
-| `LaunchRequest` ("Alexa, open little yog") | Sends "Alexa, open StoreYog" to the agent and speaks the welcome. |
+| `LaunchRequest` ("Alexa, open store yog") | Sends "Alexa, open StoreYog" to the agent and speaks the welcome. |
 | `ChatIntent` with `{text}` | Sends the exact words to the agent: the same LLM + MCP path as `/simulator`. "Yes" and "no" flow here too, so restocks still need a fresh yes. |
 | `AMAZON.StopIntent` / `CancelIntent`, or any sentence containing "stop" | Says goodbye and ends the session (StoreYog's stop rule). |
 | `AMAZON.HelpIntent` | Speaks a short help line. |
@@ -92,17 +92,17 @@ Use the **same Amazon account** your Echo is registered to. A development-stage 
 
 1. Go to https://developer.amazon.com/alexa/console/ask and click **Create Skill**.
 2. Name `StoreYog`, locale **English (US)**, experience **Other** → **Custom**, hosting **Provision your own**, template **Start from scratch**, then **Create**.
-3. **Build → Interaction Model → JSON Editor**: paste the whole of `skill-package/interactionModels/custom/en-US.json`, then **Save** and **Build skill**. Invocation name: `little yog`.
+3. **Build → Interaction Model → JSON Editor**: paste the whole of `skill-package/interactionModels/custom/en-US.json`, then **Save** and **Build skill**. Invocation name: `store yog`.
 4. **Build → Endpoint**: choose **HTTPS**. Default Region: `https://storeyog.dlyog.com/alexa`. SSL: "My development endpoint has a certificate from a trusted certificate authority". **Save**.
 5. Copy the **Skill ID** (`amzn1.ask.skill...`, shown on the Endpoint page) and add it to the server `.env` as `CLASSIC_ALEXA_SKILL_ID` with `CLASSIC_ALEXA_ENABLED=true`, then restart the app.
-6. **Test** tab: set "Skill testing is enabled in" to **Development**. Type `open little yog` in the simulator box to check it end to end.
-7. On the Echo: "**Alexa, open little yog**".
+6. **Test** tab: set "Skill testing is enabled in" to **Development**. Type `open store yog` in the simulator box to check it end to end.
+7. On the Echo: "**Alexa, open store yog**".
 
-Invocation name: `little yog`. In this account the console's typed **Alexa Simulator** answered "<name> is not supported on this device" for both `store yog` and `little yog`, while the same skill worked on a real Echo. Test on the device, or with the **Manual JSON** tab (set a current UTC `timestamp`).
+Invocation name: `store yog`. In this account the console's typed **Alexa Simulator** answers "<name> is not supported on this device" for any invocation name, while the skill works on a real Echo. Test on the device, or with the **Manual JSON** tab (set a current UTC `timestamp`).
 
 ## Demo script on the Echo
 
-1. "Alexa, open little yog." → "Welcome, Raj. How can I help you?"
+1. "Alexa, open store yog." → "Hello, I am your Virtual Store Assistant! You can ask me: …"
 2. "How much rice is available?" → the count, from a real `get_inventory` MCP call.
 3. "Reconcile today's inventory and draft a restock for the low items." → sales summary plus "Shall I order these 2 items…?"
 4. "Yes, go ahead." → "Your order is confirmed…" (simulated; no payment).

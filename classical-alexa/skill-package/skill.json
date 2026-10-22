@@ -7,7 +7,7 @@
           "summary": "Talk to your small store: stock, sales and restocks from a real MCP server.",
           "description": "StoreYog demo skill. Everything you say is sent to the StoreYog assistant, which answers from the store's real inventory records using MCP tools. Uses a fictitious demo store; orders are simulated.",
           "examplePhrases": [
-            "Alexa, open little yog",
+            "Alexa, open store yog",
             "how much rice is available",
             "reconcile today's inventory and draft a restock for the low items"
           ],

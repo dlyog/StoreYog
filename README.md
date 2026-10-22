@@ -81,7 +81,7 @@ See [.env.example](.env.example) and [API configuration](docs/API_CONFIGURATION.
 
 ## Bonus: classic Alexa skill on a real Echo Show
 
-The same MCP-backed assistant also runs on a real Echo through a **classic Alexa custom skill**. This is not Alexa+, whose preview tools are partner-only. One catch-all intent sends whatever the user says to StoreYog's agent and MCP tools. On an Echo Show it also shows shelf photos with the arrow, plays the demo video, and answers general questions through the configured LLM. Store facts always come from MCP. The skill is in development stage on the developer's own account ("Alexa, open little yog"); judges can review the code and the setup guide in [classical-alexa/README.md](classical-alexa/README.md). It is off unless `CLASSIC_ALEXA_ENABLED=true`, and requests are verified with Amazon's request-signature rules.
+The same MCP-backed assistant also runs on a real Echo through a **classic Alexa custom skill**. This is not Alexa+, whose preview tools are partner-only. One catch-all intent sends whatever the user says to StoreYog's agent and MCP tools. On an Echo Show it also shows shelf photos with the arrow, plays the demo video, and answers general questions through the configured LLM. Store facts always come from MCP. The skill is in development stage on the developer's own account ("Alexa, open store yog"); judges can review the code and the setup guide in [classical-alexa/README.md](classical-alexa/README.md). It is off unless `CLASSIC_ALEXA_ENABLED=true`, and requests are verified with Amazon's request-signature rules.
 
 ## Development and tests
 
