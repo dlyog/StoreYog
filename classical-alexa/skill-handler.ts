@@ -25,7 +25,8 @@ const REPROMPT='What else would you like to know about your store?';
 const GREETING=`Hello, I am your Virtual Store Assistant! You can ask me: ${SUGGESTIONS.map(s=>s.replace(/[?.]$/,'')).join('; ')}. You can also ask me anything else. How can I help?`;
 const HELP=`You can ask me: ${SUGGESTIONS.map(s=>s.replace(/[?.]$/,'')).join('; ')}. Say stop to finish.`;
 const origin=()=>(process.env.PUBLIC_WEB_ORIGIN||'https://storeyog.dlyog.com').replace(/\/$/,'');
-const DEMO_VIDEO=fileURLToPath(new URL('../docs/pitch-v7/storeyog-live-normal.mp4',import.meta.url));
+// Echo Show VideoApp plays at most 1280x720: serve the 720p H.264 Main encode (see docs/pitch-v7/README.md).
+const DEMO_VIDEO=fileURLToPath(new URL('../docs/pitch-v7/storeyog-live-720p.mp4',import.meta.url));
 const WELCOME_ART=fileURLToPath(new URL('../simulator/landing/assets/store-owner-evening.webp',import.meta.url));
 const WANTS_VIDEO=/\b(?:play|show|watch|start|open)\b.*\b(?:demo|video|film|pitch)\b/i;
 const WANTS_PLACE=/\b(?:where|which\s+(?:aisle|shelf)|find|locate)\b/i;
@@ -78,7 +79,7 @@ const speak=(text:string,end=false,directive?:any)=>({version:'1.0',response:{ou
 // While the video plays, keep the session without opening the microphone (shouldEndSession omitted).
 const playVideo=(text:string)=>({version:'1.0',response:{outputSpeech:{type:'PlainText',text},directives:[videoScreen(origin())]}});
 // Native Echo Show player (VideoApp interface): one directive, no reprompt, no shouldEndSession.
-const launchVideo=(text:string)=>({version:'1.0',response:{outputSpeech:{type:'PlainText',text},directives:[{type:'VideoApp.Launch',videoItem:{source:origin()+'/alexa/media/demo.mp4',metadata:{title:'StoreYog demo',subtitle:'Live walkthrough of the store assistant'}}}]}});
+const launchVideo=()=>({version:'1.0',response:{directives:[{type:'VideoApp.Launch',videoItem:{source:origin()+'/alexa/media/demo.mp4',metadata:{title:'StoreYog demo',subtitle:'Live walkthrough of the store assistant'}}}]}});
 
 // Published shelf details for a product (the customer finder's read-only find_product projection).
 async function shelfFor(text:string){
@@ -120,7 +121,7 @@ export function classicAlexaRouter(options:Options){
  router.get('/media/welcome.jpg',(_req,res)=>{jpeg(res,WELCOME_ART);});
  router.get('/media/photo/:id.jpg',async(req,res)=>{const id=String(req.params.id);if(!/^[0-9a-f-]{36}$/i.test(id))return res.status(404).end();
   try{const r=await fetch(new URL('/shop/raj-demo/api/photos/'+id,config.mcpUrl),{signal:AbortSignal.timeout(4000)});if(!r.ok)return res.status(404).end();jpeg(res,Buffer.from(await r.arrayBuffer()));}catch{res.status(404).end();}});
- router.get('/media/demo.mp4',(_req,res)=>res.sendFile(DEMO_VIDEO,{headers:{'Cache-Control':'public, max-age=3600'}},error=>{if(error&&!res.headersSent)res.status(404).end();}));
+ router.get('/media/demo.mp4',(req,res)=>{console.log(`Classic Alexa: video fetch range=${req.get('range')||'none'}`);res.sendFile(DEMO_VIDEO,{headers:{'Cache-Control':'public, max-age=3600'}},error=>{if(error&&!res.headersSent)res.status(404).end();});});
  router.post('/',express.raw({type:'*/*',limit:'64kb'}),async(req,res)=>{
   const raw=Buffer.isBuffer(req.body)?req.body:Buffer.from('');let body:any;
   try{body=JSON.parse(raw.toString('utf8'));}catch{return res.status(400).json({error:'Invalid JSON.'});}
@@ -146,7 +147,7 @@ export function classicAlexaRouter(options:Options){
    // Same rule as every StoreYog voice view: any sentence containing the word "stop" ends listening.
    if(/\bstop\b/i.test(text)){sessions.delete(alexaSession);return res.json(speak('Goodbye. Have a good evening.',true));}
    const said=text.slice(0,1000),plain=normalizeSpoken(said),video=interfaces.includes('VideoApp');
-   if(WANTS_VIDEO.test(said))return res.json(video?launchVideo('Here is the StoreYog demo.'):screen?playVideo('Here is the StoreYog demo.'):speak('The demo video needs a screen. You can watch it at storeyog dot dlyog dot com. What else can I help with?'));
+   if(WANTS_VIDEO.test(said))return res.json(video?launchVideo():screen?playVideo('Here is the StoreYog demo.'):speak('The demo video needs a screen. You can watch it at storeyog dot dlyog dot com. What else can I help with?'));
    const named=PRODUCT.exec(plain)?.[0];
    // "Show me the image of that": the product named now, or the last one discussed.
    if(WANTS_IMAGE.test(said)&&!s.pending){const product=named?plain:lastProduct.get(alexaSession);if(product){const shelf=await shelfFor(product);if(shelf?.count){const reply=shelf.item?`Here is the ${shelf.item.name} shelf. ${shelf.summary.replace(/\.{2,}/g,'.')}`:shelf.summary;if(shelf.item)lastProduct.set(alexaSession,shelf.item.name);return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}}
