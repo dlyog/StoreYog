@@ -19,7 +19,7 @@ Original builder names are `capture.ts`, `produce.py`, `frames.ts`, `render.py`,
 
 V7 is one continuous real Chrome session on `https://storeyog.dlyog.com`: landing page, owner turns in `/simulator` with the live MCP tool trace, the customer shelf finder, the owner identity gate in `/experience`, and the protected `/store/admin` audit opened on the exact request ID from the owner's rice question (bound SQL, then LLM calls). It ends with the real output of a fresh clone running `python3 setup.py --demo --non-interactive --test`, then the three API settings for live voice. Typed turns go through the live agent and MCP server. The restock is simulated and touches only the synthetic demo tenant.
 
-The film uses the same ElevenLabs voices as above. Will narrates Raj's story with Eleven v3 audio tags; Liam and Matilda voice the typed owner and customer lines; Sarah re-voices the exact reply text the live app spoke with its own Kokoro TTS. Where a voiced line is longer than the live clip, the screen is held still rather than reordered. Audio is normalized to −14 LUFS. Raj and the customer are fictional.
+The film uses the same ElevenLabs voices as above. Will narrates Raj's story with Eleven v3 audio tags; Liam and Matilda voice the typed owner and customer lines; Sarah re-voices the exact reply text the live app spoke with its own Kokoro TTS. Timing edits are holds and cuts only, never speed changes. Where a voiced line is longer than the live clip, the screen is held still. Silent stretches with no on-screen change are cut short. The film runs 2:57 at normal speed. Raj and the customer are fictional.
 
 ## ElevenLabs details
 
