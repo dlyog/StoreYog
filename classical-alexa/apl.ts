@@ -5,7 +5,7 @@
 
 const VERSION='1.8';
 const INK='#0f1626',CARD='#ffffff',MUTED='#5f6470',BLUE='#2c62ed',AMBER='#ffc23d';
-export const SUGGESTIONS=['How much rice is available?','Where is the toor dal?',"Reconcile today's inventory and draft a restock",'Play the demo video'];
+export const SUGGESTIONS=['How much rice is available?','Where is the toor dal?',"Reconcile today's inventory and draft a restock",'Is paneer high in protein?','Play an inventory tip','Play the demo video'];
 
 export const supportsApl=(body:any)=>!!body?.context?.System?.device?.supportedInterfaces?.['Alexa.Presentation.APL'];
 
@@ -52,4 +52,14 @@ export function videoScreen(origin:string){
  return {type:'Alexa.Presentation.APL.RenderDocument',token:'video',document:{type:'APL',version:VERSION,theme:'dark',mainTemplate:{parameters:['payload'],items:[{type:'Container',width:'100vw',height:'100vh',items:[
   {type:'Video',id:'demoVideo',width:'100vw',height:'100vh',scale:'best-fit',autoplay:true,audioTrack:'foreground',
    source:[{url:origin+'/alexa/media/demo.mp4'}],onEnd:[{type:'SendEvent',arguments:['videoEnded']}]}]}]}}};
+}
+
+// Audio guide card: what is playing (the audio itself plays through the spoken response).
+export function guideScreen(guide:{id:string;title:string;category:string},total:number){
+ const label={inventory:'Inventory guide',business:'Small business guide',food:'Food and nutrition guide'}[guide.category]||'Guide';
+ return render('guide',[
+  {type:'Text',text:`${label} · ${Number(guide.id)} of ${total}`,fontSize:'22dp',color:'#aeb7c9',paddingTop:'4vh'},
+  {type:'Text',text:guide.title,fontSize:'44dp',fontWeight:'800',color:'#ffffff',paddingTop:'2vh'},
+  {type:'Text',text:'Original StoreYog audio · voiced with Kokoro',fontSize:'20dp',color:'#dfe6f5',paddingTop:'3vh'},
+  {type:'Text',text:'Say “next tip”, ask about a product, or say “stop”.',fontSize:'22dp',color:AMBER,paddingTop:'5vh'}]);
 }

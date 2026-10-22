@@ -14,7 +14,8 @@ import {withModelAudit} from '../simulator/model-audit.js';
 import {config} from '../server/config.js';
 import {labFetch} from '../server/lab-http.js';
 import {completionUrl,completionHeaders} from '../server/ai-services.js';
-import {SUGGESTIONS,supportsApl,welcomeScreen,answerScreen,shelfScreen,videoScreen} from './apl.js';
+import {readFileSync} from 'node:fs';
+import {SUGGESTIONS,supportsApl,welcomeScreen,answerScreen,shelfScreen,videoScreen,guideScreen} from './apl.js';
 
 type Emit=(event:Record<string,any>)=>void;
 type RunAgent=(session:Session,text:string,scripted:boolean,emit:Emit)=>Promise<unknown>;
@@ -32,9 +33,37 @@ const WANTS_VIDEO=/\b(?:play|show|watch|start|open)\b.*\b(?:demo|video|film|pitc
 const WANTS_PLACE=/\b(?:where|which\s+(?:aisle|shelf)|find|locate)\b/i;
 const WANTS_IMAGE=/\b(?:show|see|display|view)\b.*\b(?:image|photo|picture|pic|shelf|it|that|this|them)\b|\b(?:image|photo|picture)\s+of\b/i;
 // Catalog words (after normalizing spoken spellings) mark a store question unless it is clearly a general one.
-const PRODUCT=/\b(?:rice|basmati|dal|toor|chana|atta|ghee|ginger|oil|mustard|onions?|paneer|parathas?|samosas?|wrappers?|tea|turmeric|cumin|masala)\b/i;
+const PRODUCT=/\b(?:rice|basmati|dal|toor|chana|moong|masoor|urad|rajma|kabuli|atta|besan|sooji|poha|jaggery|ghee|ginger|oil|coconut|mustard|onions?|potatoes?|tomatoes?|chilies|chili|cilantro|paneer|dahi|milk|parathas?|samosas?|wrappers?|pickle|papad|tea|turmeric|cumin|coriander|cardamom|masala)\b/i;
 const GENERAL_HINT=/\b(?:cook|recipe|dish|make\s+with|fact|healthy|health|benefits?|nutrition|calories|history|origin|joke|weather|capital|why|who)\b/i;
 const lastProduct=new Map<string,string>();
+
+// Original audio guides (audio-guides/): inventory, small business, and food/nutrition for the store's items.
+type Guide={id:string;category:string;title:string;keywords:string[]};
+const GUIDES:Guide[]=JSON.parse(readFileSync(fileURLToPath(new URL('./audio-guides/guides.json',import.meta.url)),'utf8')).guides;
+const GUIDE_DIR=fileURLToPath(new URL('./audio-guides/audio/',import.meta.url));
+const lastGuide=new Map<string,string>();
+const WANTS_GUIDE_LIST=/\b(?:what|which|list)\b.*\b(?:guides?|tips|audio)\b/i;
+const WANTS_GUIDE=/\b(?:play|listen|hear|give\s+me|tell\s+me|another|next)\b.*\b(?:tips?|guides?|guidance|advice|lessons?|audio|episodes?)\b|\bnext\s+(?:one|tip|guide)\b|\banother\s+one\b|\bguide\s+(?:number\s+)?\d+\b/i;
+const NUTRITION=/\b(?:protein|carbs?|carbohydrates?|fib(?:er|re)|fats?|calories|nutrition(?:al)?|nutrients?|healthy|healthier|health|benefits?|vitamins?|iron|calcium|diet)\b/i;
+const NUMBER_WORDS:Record<string,number>={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30};
+function categoryOf(text:string){if(NUTRITION.test(text)||/\b(?:food|nutrition|eat|eating)\b/i.test(text))return 'food';if(/\b(?:business|grow|growth|cash|marketing|customers?|pricing|price|margin|staff|hiring|suppliers?)\b/i.test(text))return 'business';if(/\b(?:inventory|stock|reorder|shelf|shelves|counting|expiry)\b/i.test(text))return 'inventory';return '';}
+// Picks a guide: an explicit number, "next" in the same set, the best keyword match, or the first in a set.
+function pickGuide(text:string,alexaSession:string):Guide|undefined{
+ const t=normalizeSpoken(text),num=/\bguide\s+(?:number\s+)?(\d+|[a-z]+(?:[\s-][a-z]+)?)\b/.exec(t)?.[1];
+ if(num){const n=/^\d+$/.test(num)?Number(num):num.split(/[\s-]/).reduce((sum,w)=>sum+(NUMBER_WORDS[w]||0),0);const g=GUIDES.find(x=>Number(x.id)===n);if(g)return g;}
+ const category=categoryOf(t),last=GUIDES.find(g=>g.id===lastGuide.get(alexaSession));
+ if(/\b(?:next|another)\b/.test(t)&&last){const pool=GUIDES.filter(g=>g.category===(category||last.category));return pool[(pool.indexOf(last)+1)%pool.length]||pool[0];}
+ const scored=GUIDES.filter(g=>!category||g.category===category).map(g=>({g,score:g.keywords.reduce((sum,k)=>sum+(new RegExp('\\b'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b').test(t)?(k.includes(' ')?2:PRODUCT.test(k)?3:1):0),0)})).sort((a,b)=>b.score-a.score);
+ if(scored[0]?.score)return scored[0].g;
+ return category?GUIDES.find(g=>g.category===category&&g.id!==last?.id):undefined;
+}
+const escapeSsml=(text:string)=>text.replace(/&/g,'and').replace(/[<>"]/g,'');
+// Plays a guide inside the conversation (SSML audio, under the 240 s limit), then invites the next request.
+function playGuide(guide:Guide,alexaSession:string,screen:boolean){
+ lastGuide.set(alexaSession,guide.id);
+ const ssml=`<speak>Here is guide ${Number(guide.id)}: ${escapeSsml(guide.title)}. <audio src="${origin()}/alexa/media/guide/${guide.id}.mp3"/> <break time="400ms"/>Would you like another tip, or something else?</speak>`;
+ return {version:'1.0',response:{outputSpeech:{type:'SSML',ssml},reprompt:{outputSpeech:{type:'PlainText',text:'Say next tip, or ask me about your store.'}},...(screen?{directives:[guideScreen(guide,GUIDES.length)]}:{}),shouldEndSession:false}};
+}
 // Store intents (stock, sales, orders, approvals) stay on the MCP agent. Anything else, including general
 // questions that merely mention a product ("what can I cook with dal"), goes to the LLM as a general question.
 const STORE_TOPIC=/\b(?:stock|inventory|in\s+stock|shelf|shelves|aisle|sales?|sold|sell|revenue|made|make|earn|orders?|reorder|restock|reconcile|supplier|price|cost|customers?|report|receipts?|transactions?|low|available|left|yes|yeah|no|nope|cancel|approve|confirm|go\s+ahead|my\s+store|the\s+store|store\s+doing)\b/i;
@@ -118,6 +147,7 @@ export function classicAlexaRouter(options:Options){
  // Echo Show images as JPEG (APL format support for WebP is not documented). Shelf photos are fetched through the
  // customer finder route, which serves only photos the owner has published.
  const jpeg=(res:express.Response,input:Buffer|string)=>sharp(input).resize({width:1280,withoutEnlargement:true}).jpeg({quality:85}).toBuffer().then(b=>res.type('image/jpeg').set('Cache-Control','public, max-age=3600').send(b)).catch(()=>res.status(404).end());
+ router.get('/media/guide/:id.mp3',(req,res)=>{const id=String(req.params.id);if(!GUIDES.some(g=>g.id===id))return res.status(404).end();res.sendFile(path.join(GUIDE_DIR,id+'.mp3'),{headers:{'Cache-Control':'public, max-age=86400'}},error=>{if(error&&!res.headersSent)res.status(404).end();});});
  router.get('/media/welcome.jpg',(_req,res)=>{jpeg(res,WELCOME_ART);});
  router.get('/media/photo/:id.jpg',async(req,res)=>{const id=String(req.params.id);if(!/^[0-9a-f-]{36}$/i.test(id))return res.status(404).end();
   try{const r=await fetch(new URL('/shop/raj-demo/api/photos/'+id,config.mcpUrl),{signal:AbortSignal.timeout(4000)});if(!r.ok)return res.status(404).end();jpeg(res,Buffer.from(await r.arrayBuffer()));}catch{res.status(404).end();}});
@@ -132,7 +162,7 @@ export function classicAlexaRouter(options:Options){
   const send=res.json.bind(res);res.json=(out:any)=>{console.log(`Classic Alexa: ${request.type}${request.intent?.name?' '+request.intent.name:''} interfaces=[${interfaces.join(',')}] -> ${(out?.response?.directives||[]).map((d:any)=>d.type).join(',')||'speech'}`);return send(out);};
   if(request.type==='SessionEndedRequest'&&request.error)console.warn(`Classic Alexa: Alexa reported ${request.error.type}: ${request.error.message}`);
   try{
-   if(request.type==='SessionEndedRequest'){sessions.delete(alexaSession);lastProduct.delete(alexaSession);return res.json({version:'1.0',response:{}});}
+   if(request.type==='SessionEndedRequest'){sessions.delete(alexaSession);lastProduct.delete(alexaSession);lastGuide.delete(alexaSession);return res.json({version:'1.0',response:{}});}
    const s=sessionFor(alexaSession);
    const screen=supportsApl(body);
    if(request.type==='LaunchRequest'){await ask(options.runAgent,s,LAUNCH_TEXT,timeout);return res.json(speak(GREETING,false,screen?welcomeScreen(origin()):undefined));}
@@ -148,6 +178,8 @@ export function classicAlexaRouter(options:Options){
    if(/\bstop\b/i.test(text)){sessions.delete(alexaSession);return res.json(speak('Goodbye. Have a good evening.',true));}
    const said=text.slice(0,1000),plain=normalizeSpoken(said),video=interfaces.includes('VideoApp');
    if(WANTS_VIDEO.test(said))return res.json(video?launchVideo():screen?playVideo('Here is the StoreYog demo.'):speak('The demo video needs a screen. You can watch it at storeyog dot dlyog dot com. What else can I help with?'));
+   if(WANTS_GUIDE_LIST.test(said)&&!s.pending){const count=(c:string)=>GUIDES.filter(g=>g.category===c).length;const reply=`I have ${GUIDES.length} short audio guides: ${count('inventory')} on inventory management, ${count('business')} on running a successful small business, and ${count('food')} on food and nutrition for our products. Say play an inventory tip, play a business tip, or ask something like is paneer high in protein.`;return res.json(speak(reply,false,screen?answerScreen(said,reply):undefined));}
+   if((WANTS_GUIDE.test(said)||(NUTRITION.test(plain)&&!/\b(?:how\s+(?:much|many)|in\s+stock|available|where)\b/i.test(said)))&&!s.pending){const guide=pickGuide(said,alexaSession);if(guide)return res.json(playGuide(guide,alexaSession,screen));}
    const named=PRODUCT.exec(plain)?.[0];
    // "Show me the image of that": the product named now, or the last one discussed.
    if(WANTS_IMAGE.test(said)&&!s.pending){const product=named?plain:lastProduct.get(alexaSession);if(product){const shelf=await shelfFor(product);if(shelf?.count){const reply=shelf.item?`Here is the ${shelf.item.name} shelf. ${shelf.summary.replace(/\.{2,}/g,'.')}`:shelf.summary;if(shelf.item)lastProduct.set(alexaSession,shelf.item.name);return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}}

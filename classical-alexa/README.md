@@ -43,6 +43,27 @@ Echo speaks the reply ◀──── reply text ───────┘       
 
 Answer quality for open questions depends on the configured LLM. The default is the self-hosted Gemma 4 E2B; setting `ANTHROPIC_API_KEY` on the server makes the store agent use Claude, but `generalAnswer` currently calls the OpenAI-compatible endpoint.
 
+## Audio guides (original, copyright-free)
+
+`audio-guides/guides.json` holds 33 original StoreYog scripts:
+- 13 on inventory management
+- 12 on running a successful small business
+- 8 on food and nutrition for the store's own items: protein-rich foods, carbohydrate staples, fats, toor vs chana dal, rice vs atta, paneer, spices, a balanced plate
+
+`generate.py` voices them with Kokoro (`af_heart`, female) and converts them to Alexa's SSML audio format (MP3, 24 kHz, 48 kbps). Each clip is 23–55 seconds; the total is about 26 minutes. Kokoro cuts off long inputs, so scripts are voiced in sentence-sized chunks and joined with short pauses.
+
+Nutrition figures are rounded, typical per-100 g values for plain foods. The guides say brands vary, to check labels, and to ask a doctor or dietitian for personal advice. The scripts are written for StoreYog and the voice comes from a self-hosted open model, so there is no third-party music or copyrighted material.
+
+How to use them on the Echo:
+- "Play an inventory tip", "play a business tip", "next tip", "play guide number five", or "what guides do you have".
+- Nutrition questions such as "is paneer high in protein?", "which food has more carbs?" or "health benefits of turmeric" play the matching food guide.
+- Guides play inside the conversation, so you can ask another question right afterwards.
+- On an Echo Show, a card shows the guide title.
+
+```sh
+python3 classical-alexa/audio-guides/generate.py   # needs TTS_API (Kokoro format); skips unchanged scripts
+```
+
 ## Files (all new; nothing else changed except one gated line)
 
 | File | Purpose |

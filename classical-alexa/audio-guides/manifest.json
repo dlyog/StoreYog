@@ -1,0 +1,200 @@
+{
+ "01": {
+  "hash": "09fcd684f2c36fc1",
+  "seconds": 54.8,
+  "title": "Count what matters most",
+  "category": "inventory"
+ },
+ "02": {
+  "hash": "8ef0f768e8a4d5eb",
+  "seconds": 52.3,
+  "title": "Set a reorder point",
+  "category": "inventory"
+ },
+ "03": {
+  "hash": "910f518b522b879c",
+  "seconds": 47.1,
+  "title": "Safety stock without overbuying",
+  "category": "inventory"
+ },
+ "04": {
+  "hash": "8ef12145435d6ff3",
+  "seconds": 49.0,
+  "title": "First in, first out",
+  "category": "inventory"
+ },
+ "05": {
+  "hash": "93e1cf47c6bfd577",
+  "seconds": 46.7,
+  "title": "Close the day with a quick reconcile",
+  "category": "inventory"
+ },
+ "06": {
+  "hash": "67c0e66c5c03c684",
+  "seconds": 49.5,
+  "title": "Cycle counting instead of a big count",
+  "category": "inventory"
+ },
+ "07": {
+  "hash": "d7290d0a95a27717",
+  "seconds": 46.4,
+  "title": "Spot slow movers early",
+  "category": "inventory"
+ },
+ "08": {
+  "hash": "a880f2cf46152350",
+  "seconds": 47.1,
+  "title": "Plan for festivals and seasons",
+  "category": "inventory"
+ },
+ "09": {
+  "hash": "2663417bda850574",
+  "seconds": 49.8,
+  "title": "Reduce shrinkage",
+  "category": "inventory"
+ },
+ "10": {
+  "hash": "8fe4a5282174cc87",
+  "seconds": 44.5,
+  "title": "Know your supplier lead times",
+  "category": "inventory"
+ },
+ "11": {
+  "hash": "1766a172247cb6a5",
+  "seconds": 46.3,
+  "title": "Organize shelves for counting and customers",
+  "category": "inventory"
+ },
+ "12": {
+  "hash": "a5102cb946148453",
+  "seconds": 43.8,
+  "title": "Review your best sellers every week",
+  "category": "inventory"
+ },
+ "13": {
+  "hash": "9eec297c8d7c3770",
+  "seconds": 44.4,
+  "title": "Free up cash tied in stock",
+  "category": "inventory"
+ },
+ "14": {
+  "hash": "8ff9a1b58d8b9f58",
+  "seconds": 48.4,
+  "title": "Know your gross margin",
+  "category": "business"
+ },
+ "15": {
+  "hash": "a437f860a45f20a1",
+  "seconds": 46.3,
+  "title": "Price with confidence",
+  "category": "business"
+ },
+ "16": {
+  "hash": "82f1881688a2118c",
+  "seconds": 40.5,
+  "title": "Turn customers into regulars",
+  "category": "business"
+ },
+ "17": {
+  "hash": "502a6ec8ab45f952",
+  "seconds": 46.4,
+  "title": "Help customers find you",
+  "category": "business"
+ },
+ "18": {
+  "hash": "c08f5623f2342ef8",
+  "seconds": 43.4,
+  "title": "Manage your cash flow",
+  "category": "business"
+ },
+ "19": {
+  "hash": "5f57f9b4481bfa5c",
+  "seconds": 45.0,
+  "title": "Work well with suppliers",
+  "category": "business"
+ },
+ "20": {
+  "hash": "75dab6b5e52cf52d",
+  "seconds": 45.1,
+  "title": "Hire and train your first helper",
+  "category": "business"
+ },
+ "21": {
+  "hash": "fdcd0e4773991d73",
+  "seconds": 41.4,
+  "title": "Listen to customer feedback",
+  "category": "business"
+ },
+ "22": {
+  "hash": "bc161e48602e7107",
+  "seconds": 44.3,
+  "title": "Protect your time and energy",
+  "category": "business"
+ },
+ "23": {
+  "hash": "e66d2c961df59e22",
+  "seconds": 41.1,
+  "title": "Marketing on a small budget",
+  "category": "business"
+ },
+ "24": {
+  "hash": "4962ee0f67131536",
+  "seconds": 42.4,
+  "title": "Simple technology that pays off",
+  "category": "business"
+ },
+ "25": {
+  "hash": "1686906276f7e5e6",
+  "seconds": 40.7,
+  "title": "Plan for steady growth",
+  "category": "business"
+ },
+ "26": {
+  "hash": "c49768ebe5409ed7",
+  "seconds": 51.5,
+  "title": "High protein foods on our shelves",
+  "category": "food"
+ },
+ "27": {
+  "hash": "96f6a0cae7b658d6",
+  "seconds": 54.5,
+  "title": "Carbohydrate rich staples",
+  "category": "food"
+ },
+ "28": {
+  "hash": "ce2927625890eeac",
+  "seconds": 52.7,
+  "title": "Healthy fats: ghee and mustard oil",
+  "category": "food"
+ },
+ "29": {
+  "hash": "46d69b2e5c013734",
+  "seconds": 47.0,
+  "title": "Toor dal or chana dal?",
+  "category": "food"
+ },
+ "30": {
+  "hash": "363bfdd7948f51ac",
+  "seconds": 46.7,
+  "title": "Rice or atta?",
+  "category": "food"
+ },
+ "31": {
+  "hash": "32f31198a84f8f06",
+  "seconds": 47.2,
+  "title": "Paneer: protein and calcium",
+  "category": "food"
+ },
+ "32": {
+  "hash": "6c4e7e8db7084609",
+  "seconds": 51.2,
+  "title": "Everyday spices: turmeric, cumin and ginger",
+  "category": "food"
+ },
+ "33": {
+  "hash": "6f8e4da40af9befd",
+  "seconds": 50.6,
+  "title": "Building a balanced plate",
+  "category": "food"
+ }
+}

@@ -1,0 +1,421 @@
+{
+ "voice": "af_heart",
+ "note": "Original StoreYog scripts. Nutrition values are rounded, typical per-100 g figures for plain foods; brands vary. General information, not medical advice.",
+ "guides": [
+  {
+   "id": "01",
+   "category": "inventory",
+   "title": "Count what matters most",
+   "keywords": [
+    "abc",
+    "count",
+    "priority",
+    "important items"
+   ],
+   "text": "Not every product deserves the same attention. A simple way to decide is called A B C analysis. Look at last month's sales and list your products by how much money each one brought in. The top few items, often around a fifth of your products, usually bring in most of your sales. Those are your A items. In a grocery store that might be rice, dal, atta and oil. Check these every day, never let them run out, and keep them where you can see them. B items are steady sellers that you can check every few days. C items sell slowly. Check them weekly and order them in small amounts. This one habit saves time, because you stop counting everything with the same care, and it protects the products your customers come in for. Revisit your list every month, because what sells changes with seasons and festivals."
+  },
+  {
+   "id": "02",
+   "category": "inventory",
+   "title": "Set a reorder point",
+   "keywords": [
+    "reorder point",
+    "when to order",
+    "reorder"
+   ],
+   "text": "A reorder point is the stock level that tells you it is time to order. You can work it out with two numbers. First, how many units you sell on a normal day. Second, how many days your supplier takes to deliver. Multiply them together, and add a small cushion for busy days. For example, if you sell four bags of rice a day and delivery takes three days, you need twelve bags to cover the wait. Add a cushion of four, and your reorder point is sixteen bags. When the shelf drops to sixteen, you order. Write the reorder point for each important product somewhere you will see it, or let your inventory system flag it for you. StoreYog does this with a reorder threshold for every item, so low stock shows up before the shelf is empty, not after a customer has already walked away."
+  },
+  {
+   "id": "03",
+   "category": "inventory",
+   "title": "Safety stock without overbuying",
+   "keywords": [
+    "safety stock",
+    "cushion",
+    "buffer"
+   ],
+   "text": "Safety stock is the extra you keep for surprises, like a delivery that comes late or a sudden rush of customers. Too little, and you run out. Too much, and your money sits on the shelf. Keep a bigger cushion for items customers cannot do without, and for products whose supplier is often late. Keep a smaller cushion for items that spoil quickly or sell slowly. A practical starting point is two or three days of normal sales for your most important items. Then watch what happens. If you never touch the cushion, reduce it a little. If you keep running out, raise it. Safety stock is not a fixed number. It is a dial you adjust as you learn how your customers and your suppliers really behave."
+  },
+  {
+   "id": "04",
+   "category": "inventory",
+   "title": "First in, first out",
+   "keywords": [
+    "fifo",
+    "first in first out",
+    "expiry",
+    "expired",
+    "rotation",
+    "rotate"
+   ],
+   "text": "First in, first out means you sell older stock before newer stock. When a delivery arrives, move the existing packets to the front of the shelf and put the new ones behind them. This simple habit keeps products fresh for customers and reduces waste from expired goods. It matters most for flour, paneer, frozen items and anything with a best before date. Once a week, take a quick walk along the shelves and look at dates. Items close to their date can be placed at eye level, bundled, or offered at a small discount, which is better than throwing them away. Keep a short list of what you had to discard and why. If the same product keeps expiring, you are ordering too much of it, and the fix is in your next order, not on the shelf."
+  },
+  {
+   "id": "05",
+   "category": "inventory",
+   "title": "Close the day with a quick reconcile",
+   "keywords": [
+    "reconcile",
+    "daily close",
+    "end of day",
+    "closing"
+   ],
+   "text": "At the end of each day, compare what you sold with what is left on the shelf. This is called reconciling. Your sales record says how many bags of rice should be gone. Your shelf tells you how many really are. When the numbers match, you can trust your stock levels for tomorrow's orders. When they do not match, you have found a problem early, while you still remember the day. It might be a sale that was not recorded, a damaged packet, or a counting mistake. You do not need to count everything every night. Focus on your most important items, and rotate through the rest during the week. With StoreYog you can simply ask to reconcile today's inventory, and the store records are updated from the day's sales in one step."
+  },
+  {
+   "id": "06",
+   "category": "inventory",
+   "title": "Cycle counting instead of a big count",
+   "keywords": [
+    "cycle count",
+    "stock take",
+    "stocktake",
+    "counting"
+   ],
+   "text": "Many small stores close for a whole day once a year to count everything. Cycle counting is an easier alternative. Instead of counting all products at once, you count a small group every day or every week, so the whole store is covered over time. Count your most important items most often, and slow movers less often. Pick a quiet time of day, count one shelf or one category, and compare the count with your records. Fix any difference right away and note the reason if you know it. Because each count is small, it takes only a few minutes, mistakes are found sooner, and your stock numbers stay accurate all year. Accurate numbers mean better orders, fewer surprises, and less money stuck in products you did not know you had."
+  },
+  {
+   "id": "07",
+   "category": "inventory",
+   "title": "Spot slow movers early",
+   "keywords": [
+    "slow moving",
+    "dead stock",
+    "not selling",
+    "slow movers"
+   ],
+   "text": "Slow moving stock quietly costs you money. It takes shelf space, ties up cash, and may expire before it sells. Once a month, look for products that have not sold in the last few weeks. Ask why. Maybe the price is too high, the product is hidden on a low shelf, customers prefer a different brand, or it was a one time request. Try one simple fix, such as moving it to a better spot or bundling it with a popular item. If it still does not sell, stop reordering it and clear what is left. Do not feel bad about removing products. A smaller range that sells well is better for your cash and your customers than a crowded shelf full of items nobody is looking for."
+  },
+  {
+   "id": "08",
+   "category": "inventory",
+   "title": "Plan for festivals and seasons",
+   "keywords": [
+    "festival",
+    "season",
+    "seasonal",
+    "diwali",
+    "holiday",
+    "demand"
+   ],
+   "text": "Demand changes through the year. Festivals, weddings, school holidays and weather all change what customers buy. Before a big festival, many families buy more flour, ghee, sweets ingredients and spices. Look back at what sold in the same weeks last year, and talk to regular customers about their plans. Order earlier than usual, because suppliers get busy too, and delivery times often grow before festivals. Increase stock of the items that clearly rise, not everything. After the season, check what was left over and note it for next year. Seasonal planning turns busy weeks into your best weeks, instead of weeks where you run out of the very items everyone came for."
+  },
+  {
+   "id": "09",
+   "category": "inventory",
+   "title": "Reduce shrinkage",
+   "keywords": [
+    "shrinkage",
+    "theft",
+    "damage",
+    "loss",
+    "missing stock"
+   ],
+   "text": "Shrinkage is stock you paid for but never sold. It comes from damage, spoilage, recording mistakes, and sometimes theft. Most shrinkage in small stores comes from ordinary mistakes, so start with simple habits. Check deliveries against the invoice before the supplier leaves. Record every sale, including small ones. Store heavy bags carefully so they do not tear. Keep high value items near the counter. When your daily count does not match your records, write down what you think happened. Over a few weeks, patterns appear. Maybe one delivery is always short, or one product is often damaged. Fixing the cause is far cheaper than accepting the loss. Even reducing shrinkage a little can make a real difference to a small store's profit."
+  },
+  {
+   "id": "10",
+   "category": "inventory",
+   "title": "Know your supplier lead times",
+   "keywords": [
+    "lead time",
+    "supplier",
+    "delivery time",
+    "delivery"
+   ],
+   "text": "Lead time is how long it takes from placing an order to having the stock on your shelf. It sounds simple, but it decides when you should order. Keep a note of each supplier's real lead time, not just what they promise. If a supplier says two days but usually takes three, plan for three. Order your most important items early in the week, so a delay does not leave you empty for the weekend. Where possible, have a backup supplier for essentials like rice and oil. Group orders to the same supplier to save on delivery costs, but do not wait so long that you run low. Good lead time records turn ordering from guesswork into a calm, regular routine."
+  },
+  {
+   "id": "11",
+   "category": "inventory",
+   "title": "Organize shelves for counting and customers",
+   "keywords": [
+    "shelf",
+    "organize",
+    "layout",
+    "display",
+    "arrangement"
+   ],
+   "text": "A well organized shelf helps you and your customers. Give every product a fixed home, and label the shelf edge with the product name. Keep similar items together, like all the dals in one place and all the spices in another. Put your best sellers at eye level and heavy bags on lower shelves. When every product has a home, counting is faster because you know exactly where to look, and gaps are easy to spot. Customers find what they need without asking, which saves you time during busy hours. In StoreYog you can add a photo of each shelf with an arrow and a short description, so customers can see exactly where an item is, even before they reach the aisle."
+  },
+  {
+   "id": "12",
+   "category": "inventory",
+   "title": "Review your best sellers every week",
+   "keywords": [
+    "best sellers",
+    "top products",
+    "sales data",
+    "weekly review"
+   ],
+   "text": "Once a week, spend ten minutes with your sales numbers. Which products sold the most? Which grew compared with last week? Which dropped? Your best sellers deserve the most attention. Make sure they never run out, check their prices against nearby stores, and keep them easy to reach. A sudden drop in a best seller is a warning sign. Maybe a competitor is cheaper, the quality changed, or the product was out of stock for a few days. A sudden rise is an opportunity to order more before you run short. This weekly review takes very little time, and it keeps your decisions based on what customers actually buy, rather than on memory or guesswork."
+  },
+  {
+   "id": "13",
+   "category": "inventory",
+   "title": "Free up cash tied in stock",
+   "keywords": [
+    "inventory turnover",
+    "turnover",
+    "cash in stock",
+    "overstock"
+   ],
+   "text": "Every packet on your shelf is cash you have already spent. Inventory turnover tells you how quickly that cash comes back. A simple way to think about it: how many days would your current stock last at your normal sales speed? Fast moving staples might last only a few days. If some products would last for months, you probably bought too much. Order slow sellers in smaller quantities, even if the price per unit is slightly higher. Avoid buying large quantities just because of a discount, unless you are sure they will sell before they expire. Faster turnover means fresher products, more space, and more cash available for the things your store needs."
+  },
+  {
+   "id": "14",
+   "category": "business",
+   "title": "Know your gross margin",
+   "keywords": [
+    "margin",
+    "profit",
+    "gross margin",
+    "markup"
+   ],
+   "text": "Gross margin is the part of each sale you keep after paying for the product. If you sell a bag of rice for thirty dollars and it cost you twenty four, your margin is six dollars, or twenty percent of the price. Different products have very different margins. Staples often have thin margins but bring customers in. Spices, snacks and specialty items often have better margins. Knowing the margin of your main products helps you make better choices about pricing, promotions and what to stock. You do not need complicated accounting software to start. Write down the cost and the selling price of your top twenty products, and calculate the margin for each one. You may be surprised which products truly make your store money."
+  },
+  {
+   "id": "15",
+   "category": "business",
+   "title": "Price with confidence",
+   "keywords": [
+    "pricing",
+    "price",
+    "prices"
+   ],
+   "text": "Pricing is one of the most powerful decisions a small store makes. Start with your cost and the margin you need. Then look at what nearby stores charge for the same products. For everyday staples that customers compare, stay close to the market price. For items where you offer something special, like freshness, a hard to find brand, or friendly advice, you can often charge a little more. Avoid lowering prices across the board to compete with large chains. You will rarely win that race. Instead, compete on service, convenience and knowing your customers. Review prices when your supplier costs change, and update them promptly, so rising costs do not quietly eat into your profit."
+  },
+  {
+   "id": "16",
+   "category": "business",
+   "title": "Turn customers into regulars",
+   "keywords": [
+    "loyalty",
+    "regular customers",
+    "customer relationships",
+    "repeat customers"
+   ],
+   "text": "Regular customers are the heart of a small store. They visit often, they spend more over time, and they tell their friends. Learn their names and what they usually buy. Remember when someone asked for a product you did not have, and let them know when it arrives. Keep the store clean, the shelves full and the greeting warm. A simple loyalty idea, like a small discount after a number of visits, can encourage people to come back. Most importantly, make every visit easy. When customers know they will find what they need quickly, and be treated well, they choose you even when a bigger store is nearby."
+  },
+  {
+   "id": "17",
+   "category": "business",
+   "title": "Help customers find you",
+   "keywords": [
+    "online",
+    "google",
+    "listing",
+    "find my store",
+    "online presence"
+   ],
+   "text": "Many customers search online before they visit a store, even for groceries. Make sure your store appears correctly on online maps, with the right address, opening hours, phone number and a few clear photos. Update your hours for holidays. Answer reviews politely, including the critical ones, because future customers read your replies. If you have a list of products customers can browse, keep it accurate, and only show what is really available. StoreYog's customer finder lets shoppers check whether an item is in stock and where it is on the shelf, without seeing any private business numbers. A small online presence, kept up to date, brings new customers through the door."
+  },
+  {
+   "id": "18",
+   "category": "business",
+   "title": "Manage your cash flow",
+   "keywords": [
+    "cash flow",
+    "cash",
+    "money",
+    "bills"
+   ],
+   "text": "Cash flow is the money coming in and going out of your business. A profitable store can still struggle if cash runs short at the wrong time. Keep a simple weekly view: how much you expect to receive from sales, and what you need to pay, such as suppliers, rent, wages and utilities. Plan large orders around the days when cash is strongest. Keep a small reserve for emergencies, even if it grows slowly. Ask suppliers about payment terms that match your sales cycle. Separate your personal money from the business money, so you always know where the store really stands. Good cash flow habits reduce stress and give you room to make good decisions."
+  },
+  {
+   "id": "19",
+   "category": "business",
+   "title": "Work well with suppliers",
+   "keywords": [
+    "supplier relationship",
+    "negotiate",
+    "negotiation",
+    "vendors"
+   ],
+   "text": "Good suppliers make a small store stronger. Pay on time, communicate clearly, and give them reasonable notice for large orders. In return, ask for what helps you: reliable delivery days, fair prices, payment terms, or smaller minimum orders for slow moving items. Keep track of each supplier's reliability, including late deliveries and short shipments. Use that record when you negotiate, calmly and with facts. Compare prices once or twice a year, but do not switch suppliers only for a tiny saving, because reliability is worth a lot. For your most important products, try to have a second supplier you can call when the first one lets you down."
+  },
+  {
+   "id": "20",
+   "category": "business",
+   "title": "Hire and train your first helper",
+   "keywords": [
+    "hiring",
+    "staff",
+    "employee",
+    "training",
+    "helper"
+   ],
+   "text": "Hiring your first helper is a big step for a solo owner. Start by writing down the tasks that take most of your time, like stocking shelves, serving customers or cleaning. Hire for reliability and a friendly attitude, because skills can be taught. On the first days, show the helper how you do each task, then let them try while you watch. Write short checklists for opening, closing and receiving deliveries. Explain why things matter, such as first in, first out, or recording every sale. Give clear feedback and appreciation. A well trained helper gives you time to plan, order and serve customers, which is where the owner adds the most value."
+  },
+  {
+   "id": "21",
+   "category": "business",
+   "title": "Listen to customer feedback",
+   "keywords": [
+    "feedback",
+    "reviews",
+    "complaints",
+    "suggestions"
+   ],
+   "text": "Your customers tell you how to improve, if you listen. Ask regular customers what they would like you to stock. Keep a small notebook at the counter for product requests, and look for patterns. Read online reviews and reply politely. When someone complains, thank them, fix the problem if you can, and let them know what you changed. Not every suggestion fits your store, but repeated requests are worth trying in small quantities. Customers notice when their feedback makes a difference, and they become more loyal because of it. Listening costs nothing, and it is one of the most reliable ways a small store can grow."
+  },
+  {
+   "id": "22",
+   "category": "business",
+   "title": "Protect your time and energy",
+   "keywords": [
+    "time management",
+    "burnout",
+    "busy",
+    "tired",
+    "work life"
+   ],
+   "text": "Running a small store alone is demanding. Protecting your time and energy is part of running a good business. Group similar tasks together, like placing all orders on the same morning. Use quiet hours for planning, and busy hours for serving customers. Let simple tools handle repetitive work, such as tracking stock, reconciling sales and preparing restock lists. Take short breaks, drink water, and keep at least some time each week completely away from the store. A rested owner makes better decisions and treats customers better. Your health is the store's most important asset, so look after it as carefully as you look after the shelves."
+  },
+  {
+   "id": "23",
+   "category": "business",
+   "title": "Marketing on a small budget",
+   "keywords": [
+    "marketing",
+    "promotion",
+    "advertising",
+    "community"
+   ],
+   "text": "Small stores do not need a big budget to market well. Start with the people who already know you. Ask happy customers to tell friends or leave a review. Put a simple sign outside with a weekly offer. Take part in local events, festivals and community groups, and offer a small discount to their members. Share photos of new arrivals or festival specials on a simple social media page. Partner with nearby businesses, such as a local restaurant that buys spices from you. The most effective marketing is still a great experience inside the store, because satisfied customers bring more customers."
+  },
+  {
+   "id": "24",
+   "category": "business",
+   "title": "Simple technology that pays off",
+   "keywords": [
+    "technology",
+    "tools",
+    "software",
+    "voice assistant",
+    "pos"
+   ],
+   "text": "Technology should save time, not create work. Start with the basics: a reliable way to record every sale, and a simple inventory list that updates when you sell or receive stock. Once that is in place, add tools that answer your daily questions quickly, such as how much of an item is left, what sold today, and what needs reordering. Voice assistants can help when your hands are busy, as long as the answers come from your real store records. Choose tools that are easy to learn, keep your data private, and let you approve any important action like an order. The right tools give you back time to spend with customers."
+  },
+  {
+   "id": "25",
+   "category": "business",
+   "title": "Plan for steady growth",
+   "keywords": [
+    "growth",
+    "goals",
+    "planning",
+    "expand"
+   ],
+   "text": "Growth works best in small, steady steps. Each quarter, choose one clear goal, such as adding a new product category, improving margin on your top items, or reducing waste. Write down how you will measure it, and check progress every few weeks. Before expanding, make sure the basics are strong: accurate stock, healthy cash flow and happy regular customers. Test new ideas in small amounts before committing. Learn from other store owners and from your own numbers. A store that improves a little every quarter is far stronger in a few years than one that tries to change everything at once."
+  },
+  {
+   "id": "26",
+   "category": "food",
+   "title": "High protein foods on our shelves",
+   "keywords": [
+    "protein",
+    "high protein",
+    "protein rich",
+    "most protein"
+   ],
+   "text": "If you are looking for protein, the dals on our shelves are a great place to start. Toor dal and chana dal each contain roughly twenty grams of protein in every hundred grams of dry lentils, along with plenty of fiber. Paneer is another excellent choice, with around eighteen to twenty grams of protein per hundred grams, plus calcium and fat. Whole wheat atta adds some protein too, about twelve grams per hundred grams of flour. Rice has less, around seven grams. A classic meal of dal with rice or roti combines these foods, and together they provide a well balanced mix of protein. Values are approximate and vary by brand, so please check the package label, and ask a doctor or dietitian for personal advice."
+  },
+  {
+   "id": "27",
+   "category": "food",
+   "title": "Carbohydrate rich staples",
+   "keywords": [
+    "carbs",
+    "carbohydrate",
+    "carbohydrates",
+    "most carbs",
+    "energy"
+   ],
+   "text": "Carbohydrates are the body's main source of energy, and several staples in our store are rich in them. Basmati rice is about seventy eight grams of carbohydrate in every hundred grams of uncooked rice. Whole wheat atta is about seventy grams per hundred grams, with much more fiber than white rice, which helps you feel full for longer. Frozen parathas and samosa wrappers are made mainly from wheat flour, so they are carbohydrate rich as well, and some contain added fat. The dals also contain carbohydrate, around sixty grams per hundred grams dry, but they balance it with a lot of protein and fiber. If you are watching carbohydrates, enjoy smaller portions of rice or roti with a larger serving of dal and vegetables. Values are approximate and vary by brand."
+  },
+  {
+   "id": "28",
+   "category": "food",
+   "title": "Healthy fats: ghee and mustard oil",
+   "keywords": [
+    "ghee",
+    "mustard oil",
+    "fat",
+    "fats",
+    "oil",
+    "calories"
+   ],
+   "text": "Ghee and mustard oil are both almost entirely fat, which makes them rich in energy, about nine calories in every gram. A tablespoon of ghee adds wonderful flavor to dal and rice, and it is traditionally used in small amounts. Ghee is mostly saturated fat. Mustard oil is mainly unsaturated fat, including omega three fatty acids, and it is popular for cooking in many Indian kitchens. Because both are so energy dense, a little goes a long way. Measuring with a spoon, rather than pouring from the bottle, is an easy way to keep portions sensible. Fats help the body absorb some vitamins, so they belong in a balanced diet in moderation. For personal dietary needs, please ask a doctor or dietitian."
+  },
+  {
+   "id": "29",
+   "category": "food",
+   "title": "Toor dal or chana dal?",
+   "keywords": [
+    "toor dal",
+    "chana dal",
+    "which dal",
+    "dal",
+    "lentils",
+    "fiber",
+    "fibre"
+   ],
+   "text": "Both toor dal and chana dal are nutritious, protein rich lentils, and they are quite similar. Each has roughly twenty grams of protein per hundred grams dry, and both are high in fiber, which supports digestion and helps you feel full. Toor dal, also called pigeon pea, cooks quickly and becomes soft and creamy, which makes it perfect for everyday dal and sambar. Chana dal, made from split chickpeas, holds its shape better, has a slightly nutty taste, and is often used in thicker dals and snacks. Both provide iron, potassium and B vitamins. Rinsing well and cooking thoroughly makes them easier to digest. Choose the one you enjoy, and switch between them for variety."
+  },
+  {
+   "id": "30",
+   "category": "food",
+   "title": "Rice or atta?",
+   "keywords": [
+    "rice",
+    "atta",
+    "wheat",
+    "roti",
+    "basmati",
+    "which is healthier"
+   ],
+   "text": "Rice and whole wheat atta are both staple sources of energy, but they are a little different. Basmati rice, per hundred grams uncooked, has about seventy eight grams of carbohydrate, around seven grams of protein, and little fiber. Whole wheat atta has about seventy grams of carbohydrate, around twelve grams of protein, and much more fiber, because it uses the whole grain. That extra fiber helps you feel full for longer. Both can be part of a healthy diet. Many families enjoy rice with dal at one meal and roti at another. If you want more protein and fiber from your staple, roti made with whole wheat atta has a small edge. Values are approximate and vary by product."
+  },
+  {
+   "id": "31",
+   "category": "food",
+   "title": "Paneer: protein and calcium",
+   "keywords": [
+    "paneer",
+    "cheese",
+    "calcium"
+   ],
+   "text": "Paneer is a fresh cheese made from milk, and it is one of the richest vegetarian sources of protein in our store. A hundred grams of paneer provides roughly eighteen to twenty grams of protein, along with calcium for bones and teeth. It is also fairly high in fat, so portion size matters if you are watching calories. Paneer is low in carbohydrate, which makes it a popular choice for people reducing carbs. It works well in curries, grilled with spices, or crumbled into fillings. Keep paneer refrigerated and use it before its date. If you are lactose intolerant or have a dairy allergy, check with a doctor before eating it. Values vary by brand, so check the label."
+  },
+  {
+   "id": "32",
+   "category": "food",
+   "title": "Everyday spices: turmeric, cumin and ginger",
+   "keywords": [
+    "turmeric",
+    "cumin",
+    "ginger",
+    "garam masala",
+    "spices",
+    "health benefits",
+    "benefits"
+   ],
+   "text": "Spices add flavor with very few calories. Turmeric gives food its golden color. It contains a natural compound called curcumin, which researchers are studying for its anti inflammatory properties, though the amount in everyday cooking is small. Cumin seeds bring a warm, earthy flavor and contain iron. Ginger is widely used to add freshness and warmth, and many people enjoy it in tea. Garam masala is a blend of warming spices used at the end of cooking. Using spices generously can make simple dals and vegetables delicious without extra salt or fat. Spices are a pleasure to cook with, but they are not a substitute for medical treatment, so please speak with a doctor about any health condition."
+  },
+  {
+   "id": "33",
+   "category": "food",
+   "title": "Building a balanced plate",
+   "keywords": [
+    "balanced",
+    "healthy meal",
+    "diet",
+    "nutrition",
+    "meal",
+    "plate"
+   ],
+   "text": "A balanced plate brings together energy, protein, fiber and vegetables. Using items from our store, start with a portion of rice or roti made from whole wheat atta for energy. Add a generous bowl of toor dal or chana dal for protein and fiber. Include vegetables, such as onions and ginger in your cooking, and any fresh vegetables you enjoy. A small amount of ghee or mustard oil adds flavor and helps the body absorb some vitamins. Paneer can replace or join the dal on some days for extra protein and calcium. Season with turmeric and cumin for taste without extra calories. Small changes in portion sizes make a big difference over time. For personal advice, please talk to a doctor or dietitian."
+  }
+ ]
+}

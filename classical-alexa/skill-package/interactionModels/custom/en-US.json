@@ -924,6 +924,481 @@
               "name": {
                 "value": "show the demo"
               }
+            },
+            {
+              "name": {
+                "value": "play an inventory tip"
+              }
+            },
+            {
+              "name": {
+                "value": "play a business tip"
+              }
+            },
+            {
+              "name": {
+                "value": "play a nutrition tip"
+              }
+            },
+            {
+              "name": {
+                "value": "give me a food tip"
+              }
+            },
+            {
+              "name": {
+                "value": "next tip"
+              }
+            },
+            {
+              "name": {
+                "value": "another tip"
+              }
+            },
+            {
+              "name": {
+                "value": "play guide number five"
+              }
+            },
+            {
+              "name": {
+                "value": "what guides do you have"
+              }
+            },
+            {
+              "name": {
+                "value": "list the tips"
+              }
+            },
+            {
+              "name": {
+                "value": "is paneer high in protein"
+              }
+            },
+            {
+              "name": {
+                "value": "which food has more protein"
+              }
+            },
+            {
+              "name": {
+                "value": "which food has more carbs"
+              }
+            },
+            {
+              "name": {
+                "value": "which has more protein toor dal or chana dal"
+              }
+            },
+            {
+              "name": {
+                "value": "is rice or atta healthier"
+              }
+            },
+            {
+              "name": {
+                "value": "what are the health benefits of turmeric"
+              }
+            },
+            {
+              "name": {
+                "value": "how many calories in ghee"
+              }
+            },
+            {
+              "name": {
+                "value": "which items are high in fiber"
+              }
+            },
+            {
+              "name": {
+                "value": "play a tip on pricing"
+              }
+            },
+            {
+              "name": {
+                "value": "give me advice on cash flow"
+              }
+            },
+            {
+              "name": {
+                "value": "how much moong dal is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the moong dal"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have moong dal"
+              }
+            },
+            {
+              "name": {
+                "value": "how much masoor dal is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the masoor dal"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have masoor dal"
+              }
+            },
+            {
+              "name": {
+                "value": "how much urad dal is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the urad dal"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have urad dal"
+              }
+            },
+            {
+              "name": {
+                "value": "how much rajma is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the rajma"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have rajma"
+              }
+            },
+            {
+              "name": {
+                "value": "how much kabuli chana is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the kabuli chana"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have kabuli chana"
+              }
+            },
+            {
+              "name": {
+                "value": "how much poha is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the poha"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have poha"
+              }
+            },
+            {
+              "name": {
+                "value": "how much sooji is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the sooji"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have sooji"
+              }
+            },
+            {
+              "name": {
+                "value": "how much besan is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the besan"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have besan"
+              }
+            },
+            {
+              "name": {
+                "value": "how much jaggery is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the jaggery"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have jaggery"
+              }
+            },
+            {
+              "name": {
+                "value": "how much coriander powder is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the coriander powder"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have coriander powder"
+              }
+            },
+            {
+              "name": {
+                "value": "how much red chili powder is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the red chili powder"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have red chili powder"
+              }
+            },
+            {
+              "name": {
+                "value": "how much mustard seeds is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the mustard seeds"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have mustard seeds"
+              }
+            },
+            {
+              "name": {
+                "value": "how much cardamom is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the cardamom"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have cardamom"
+              }
+            },
+            {
+              "name": {
+                "value": "how much coconut oil is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the coconut oil"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have coconut oil"
+              }
+            },
+            {
+              "name": {
+                "value": "how much dahi is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the dahi"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have dahi"
+              }
+            },
+            {
+              "name": {
+                "value": "how much milk is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the milk"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have milk"
+              }
+            },
+            {
+              "name": {
+                "value": "how much tomatoes is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the tomatoes"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have tomatoes"
+              }
+            },
+            {
+              "name": {
+                "value": "how much potatoes is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the potatoes"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have potatoes"
+              }
+            },
+            {
+              "name": {
+                "value": "how much green chilies is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the green chilies"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have green chilies"
+              }
+            },
+            {
+              "name": {
+                "value": "how much cilantro is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the cilantro"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have cilantro"
+              }
+            },
+            {
+              "name": {
+                "value": "how much mango pickle is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the mango pickle"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have mango pickle"
+              }
+            },
+            {
+              "name": {
+                "value": "how much papad is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the papad"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have papad"
+              }
+            },
+            {
+              "name": {
+                "value": "how much frozen samosas is available"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the frozen samosas"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have frozen samosas"
+              }
+            },
+            {
+              "name": {
+                "value": "what's in the dairy fridge"
+              }
+            },
+            {
+              "name": {
+                "value": "where are the spices"
+              }
+            },
+            {
+              "name": {
+                "value": "which lentils do you have"
+              }
+            },
+            {
+              "name": {
+                "value": "do you have yogurt"
+              }
+            },
+            {
+              "name": {
+                "value": "how much mung dal do we have"
+              }
+            },
+            {
+              "name": {
+                "value": "where are the chickpeas"
+              }
+            },
+            {
+              "name": {
+                "value": "is moong dal high in protein"
+              }
             }
           ]
         }

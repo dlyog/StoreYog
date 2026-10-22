@@ -27,3 +27,10 @@ test('stock questions route to MCP counts while sales and order questions keep t
  for(const said of ['do I have dahl','check dahl','how much rice is available','got any ghee','is paneer in stock'])assert.ok(asksAboutStock(said),said);
  for(const said of ['check today\'s sales','how much did I make today','what is the status of my order','reorder rice','reconcile today\'s inventory','email my inventory report','how is my store doing'])assert.ok(!asksAboutStock(said),said);
 });
+test('extended catalog: spoken variants map to catalog names',()=>{
+ const shelf=[{item:'Moong dal',stock:34,unit:'2 lb bag'},{item:'Dahi',stock:22,unit:'32 oz tub'},{item:'Kabuli chana',stock:26,unit:'2 lb bag'},{item:'Green chilies',stock:25,unit:'200 g'},{item:'Toor dal',stock:18,unit:'2 lb bag'}];
+ assert.deepEqual(inventoryQuestion('how much mung dal do we have',shelf),[shelf[0]]);
+ assert.deepEqual(inventoryQuestion('do you have yogurt',shelf),[shelf[1]]);
+ assert.deepEqual(inventoryQuestion('do we have chickpeas',shelf),[shelf[2]]);
+ assert.deepEqual(inventoryQuestion('how many green chillies are left',shelf),[shelf[3]]);
+});

@@ -12,6 +12,31 @@ const seeds: [string,string,number,number,number,number][] = [
  ['Garam masala','100 g pouch',40,36,12,2.5], ['Tea','500 g box',30,27,9,5.5],
  ['Samosa wrappers','pack',30,27,9,3], ['Frozen parathas','pack of 5',40,36,12,3.5],
  ['Paneer','400 g pack',30,24,10,4], ['Onions','1 lb',100,90,30,0.8], ['Ginger','1 lb',40,36,12,2],
+ // Extended synthetic catalog: stocked above reorder points and absent from the seeded receipts, so the daily
+ // sales story (40 receipts, rice and toor dal running low) is unchanged.
+ ['Moong dal','2 lb bag',40,34,12,4.5],
+ ['Masoor dal','2 lb bag',40,33,12,4],
+ ['Urad dal','2 lb bag',30,26,9,5],
+ ['Rajma','2 lb bag',30,25,9,4.5],
+ ['Kabuli chana','2 lb bag',30,26,9,4],
+ ['Poha','2 lb bag',30,25,8,3],
+ ['Sooji','2 lb bag',30,26,8,3],
+ ['Besan','2 lb bag',30,24,8,3.5],
+ ['Jaggery','1 kg block',25,20,6,4],
+ ['Coriander powder','200 g pouch',40,34,12,2.5],
+ ['Red chili powder','200 g pouch',40,33,12,2.5],
+ ['Mustard seeds','200 g pouch',30,26,9,2],
+ ['Cardamom','100 g pouch',20,17,6,6],
+ ['Coconut oil','1 L bottle',20,17,6,6],
+ ['Dahi','32 oz tub',30,22,8,3.5],
+ ['Milk','1 gallon',30,24,10,4],
+ ['Tomatoes','1 lb',60,50,18,1.2],
+ ['Potatoes','5 lb bag',40,34,12,3.5],
+ ['Green chilies','200 g',30,25,8,1.5],
+ ['Cilantro','bunch',40,32,12,0.6],
+ ['Mango pickle','500 g jar',24,20,6,4],
+ ['Papad','200 g pack',30,26,8,2],
+ ['Frozen samosas','pack of 12',30,25,8,6],
 ];
 const money=(n:number)=>Math.round(n*100)/100;
 const columns=`item,unit,full_stock AS fullStock,opening_stock AS openingStock,stock,reorder_threshold AS reorderThreshold,unit_cost AS unitCost,ROUND(100.0*stock/full_stock) AS percentRemaining`;
