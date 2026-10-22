@@ -1,6 +1,8 @@
 # Pitch video and provenance
 
-The hosted V6 video has two editions: normal **207 seconds (3:27)** and exactly **1.25×, 165.6 seconds (2:45.6)**. The accelerated edition preserves pitch and fits the three-minute submission limit. Both use 1080p, quiet background music, clean cuts and no subtitle track. Generated MP3/WAV/MP4 and production caches are intentionally excluded from this public runtime repository.
+**Submission video: V7 live demo, 2:57, public on YouTube: https://www.youtube.com/watch?v=2lTYkuJm1EM.** It is embedded on the landing page and described below.
+
+The earlier hosted V6 video has two editions: normal **207 seconds (3:27)** and exactly **1.25×, 165.6 seconds (2:45.6)**. The accelerated edition preserves pitch and fits the three-minute submission limit. Both use 1080p, quiet background music, clean cuts and no subtitle track. Generated MP3/WAV/MP4 and production caches are intentionally excluded from this public runtime repository.
 
 The film combines original illustrated characters, synthesized dialogue and actual application screenshots captured after real customer, POS and MCP requests. The owner PIN is a synthetic walkthrough; supplier orders are simulated. The sales-report inbox is illustrative and populated through a local fake SMTP capture; neither the displayed Raj nor Sam address received a real email. No native Alexa hardware integration or continuous live-human recording is claimed.
 
