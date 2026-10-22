@@ -9,7 +9,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import sharp from 'sharp';
 import type {Session} from '../simulator/agent.js';
-import {asksAboutStock} from '../simulator/inventory-query.js';
+import {asksAboutStock,normalizeSpoken} from '../simulator/inventory-query.js';
 import {withModelAudit} from '../simulator/model-audit.js';
 import {config} from '../server/config.js';
 import {labFetch} from '../server/lab-http.js';
@@ -28,7 +28,12 @@ const origin=()=>(process.env.PUBLIC_WEB_ORIGIN||'https://storeyog.dlyog.com').r
 const DEMO_VIDEO=fileURLToPath(new URL('../docs/pitch-v7/storeyog-live-normal.mp4',import.meta.url));
 const WELCOME_ART=fileURLToPath(new URL('../simulator/landing/assets/store-owner-evening.webp',import.meta.url));
 const WANTS_VIDEO=/\b(?:play|show|watch|start|open)\b.*\b(?:demo|video|film|pitch)\b/i;
-const WANTS_PLACE=/\b(?:where|which\s+(?:aisle|shelf)|find|locate|show\s+me)\b/i;
+const WANTS_PLACE=/\b(?:where|which\s+(?:aisle|shelf)|find|locate)\b/i;
+const WANTS_IMAGE=/\b(?:show|see|display|view)\b.*\b(?:image|photo|picture|pic|shelf|it|that|this|them)\b|\b(?:image|photo|picture)\s+of\b/i;
+// Catalog words (after normalizing spoken spellings) mark a store question unless it is clearly a general one.
+const PRODUCT=/\b(?:rice|basmati|dal|toor|chana|atta|ghee|ginger|oil|mustard|onions?|paneer|parathas?|samosas?|wrappers?|tea|turmeric|cumin|masala)\b/i;
+const GENERAL_HINT=/\b(?:cook|recipe|dish|make\s+with|fact|healthy|health|benefits?|nutrition|calories|history|origin|joke|weather|capital|why|who)\b/i;
+const lastProduct=new Map<string,string>();
 // Store intents (stock, sales, orders, approvals) stay on the MCP agent. Anything else, including general
 // questions that merely mention a product ("what can I cook with dal"), goes to the LLM as a general question.
 const STORE_TOPIC=/\b(?:stock|inventory|in\s+stock|shelf|shelves|aisle|sales?|sold|sell|revenue|made|make|earn|orders?|reorder|restock|reconcile|supplier|price|cost|customers?|report|receipts?|transactions?|low|available|left|yes|yeah|no|nope|cancel|approve|confirm|go\s+ahead|my\s+store|the\s+store|store\s+doing)\b/i;
@@ -72,10 +77,12 @@ export async function verifyAlexaRequest(headers:express.Request['headers'],raw:
 const speak=(text:string,end=false,directive?:any)=>({version:'1.0',response:{outputSpeech:{type:'PlainText',text:text.slice(0,7900)},...(end?{}:{reprompt:{outputSpeech:{type:'PlainText',text:REPROMPT}}}),...(directive?{directives:[directive]}:{}),shouldEndSession:end}});
 // While the video plays, keep the session without opening the microphone (shouldEndSession omitted).
 const playVideo=(text:string)=>({version:'1.0',response:{outputSpeech:{type:'PlainText',text},directives:[videoScreen(origin())]}});
+// Native Echo Show player (VideoApp interface): one directive, no reprompt, no shouldEndSession.
+const launchVideo=(text:string)=>({version:'1.0',response:{outputSpeech:{type:'PlainText',text},directives:[{type:'VideoApp.Launch',videoItem:{source:origin()+'/alexa/media/demo.mp4',metadata:{title:'StoreYog demo',subtitle:'Live walkthrough of the store assistant'}}}]}});
 
 // Published shelf details for a product (the customer finder's read-only find_product projection).
 async function shelfFor(text:string){
- try{const r=await fetch(new URL('/shop/raj-demo/api/search?q='+encodeURIComponent(text),config.mcpUrl),{signal:AbortSignal.timeout(2500)});if(!r.ok)return null;
+ try{const r=await fetch(new URL('/shop/raj-demo/api/search?q='+encodeURIComponent(normalizeSpoken(text)),config.mcpUrl),{signal:AbortSignal.timeout(2500)});if(!r.ok)return null;
   const data=await r.json() as any;return {summary:String(data.summary||''),item:(data.items||[]).find((i:any)=>i.photo?.url)||null,count:(data.items||[]).length};}
  catch{return null;}
 }
@@ -119,8 +126,12 @@ export function classicAlexaRouter(options:Options){
   try{body=JSON.parse(raw.toString('utf8'));}catch{return res.status(400).json({error:'Invalid JSON.'});}
   if(!options.skipVerification){try{await verifyAlexaRequest(req.headers,raw,body,options.skillId);}catch(e){console.warn('Classic Alexa: rejected request:',e instanceof Error?e.message:e);return res.status(400).json({error:'Request verification failed.'});}}
   const request=body?.request||{},alexaSession=body?.session?.sessionId||body?.context?.System?.device?.deviceId||'unknown';
+  const interfaces=Object.keys(body?.context?.System?.device?.supportedInterfaces||{});
+  // Diagnostics without user content: request kind, screen interfaces, directives sent, Alexa's error reports.
+  const send=res.json.bind(res);res.json=(out:any)=>{console.log(`Classic Alexa: ${request.type}${request.intent?.name?' '+request.intent.name:''} interfaces=[${interfaces.join(',')}] -> ${(out?.response?.directives||[]).map((d:any)=>d.type).join(',')||'speech'}`);return send(out);};
+  if(request.type==='SessionEndedRequest'&&request.error)console.warn(`Classic Alexa: Alexa reported ${request.error.type}: ${request.error.message}`);
   try{
-   if(request.type==='SessionEndedRequest'){sessions.delete(alexaSession);return res.json({version:'1.0',response:{}});}
+   if(request.type==='SessionEndedRequest'){sessions.delete(alexaSession);lastProduct.delete(alexaSession);return res.json({version:'1.0',response:{}});}
    const s=sessionFor(alexaSession);
    const screen=supportsApl(body);
    if(request.type==='LaunchRequest'){await ask(options.runAgent,s,LAUNCH_TEXT,timeout);return res.json(speak(GREETING,false,screen?welcomeScreen(origin()):undefined));}
@@ -134,13 +145,19 @@ export function classicAlexaRouter(options:Options){
    if(intent!=='ChatIntent'||!text)return res.json(speak('Sorry, I did not catch that. Please say it again.'));
    // Same rule as every StoreYog voice view: any sentence containing the word "stop" ends listening.
    if(/\bstop\b/i.test(text)){sessions.delete(alexaSession);return res.json(speak('Goodbye. Have a good evening.',true));}
-   const said=text.slice(0,1000);
-   if(WANTS_VIDEO.test(said))return res.json(screen?playVideo('Here is the StoreYog demo.'):speak('The demo video needs a screen. You can watch it at storeyog dot dlyog dot com. What else can I help with?'));
-   if(WANTS_PLACE.test(said)&&!s.pending){const shelf=await shelfFor(said);if(shelf?.count){const reply=shelf.summary.replace(/\.\.$/,'.');return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}
-   if(!s.pending&&!STORE_TOPIC.test(said)&&!asksAboutStock(said)){const reply=await generalAnswer(s,said).catch(()=>'Sorry, I could not answer that right now.');return res.json(speak(reply,false,screen?answerScreen(said,reply):undefined));}
-   const reply=await ask(options.runAgent,s,said,timeout);
+   const said=text.slice(0,1000),plain=normalizeSpoken(said),video=interfaces.includes('VideoApp');
+   if(WANTS_VIDEO.test(said))return res.json(video?launchVideo('Here is the StoreYog demo.'):screen?playVideo('Here is the StoreYog demo.'):speak('The demo video needs a screen. You can watch it at storeyog dot dlyog dot com. What else can I help with?'));
+   const named=PRODUCT.exec(plain)?.[0];
+   // "Show me the image of that": the product named now, or the last one discussed.
+   if(WANTS_IMAGE.test(said)&&!s.pending){const product=named?plain:lastProduct.get(alexaSession);if(product){const shelf=await shelfFor(product);if(shelf?.count){const reply=shelf.item?`Here is the ${shelf.item.name} shelf. ${shelf.summary.replace(/\.{2,}/g,'.')}`:shelf.summary;if(shelf.item)lastProduct.set(alexaSession,shelf.item.name);return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}}
+   if(WANTS_PLACE.test(said)&&!s.pending){const shelf=await shelfFor(said);if(shelf?.count){const reply=shelf.summary.replace(/\.{2,}/g,'.');if(shelf.item)lastProduct.set(alexaSession,shelf.item.name);return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}
+   const storeTurn=!!s.pending||STORE_TOPIC.test(said)||asksAboutStock(plain)||(!!named&&!GENERAL_HINT.test(said));
+   if(!storeTurn){const reply=await generalAnswer(s,said).catch(()=>'Sorry, I could not answer that right now.');return res.json(speak(reply,false,screen?answerScreen(said,reply):undefined));}
+   // A bare product name ("toor dahl") is a stock question about that product.
+   const bare=!s.pending&&!STORE_TOPIC.test(said)&&!asksAboutStock(plain)&&!!named;
+   const reply=await ask(options.runAgent,s,bare?`how much ${said} is available`:said,timeout);
+   const shelf=named?await shelfFor(said):null;if(shelf?.item&&shelf.count===1)lastProduct.set(alexaSession,shelf.item.name);
    if(!screen)return res.json(speak(reply));
-   const shelf=asksAboutStock(said)?await shelfFor(said):null;
    return res.json(speak(reply,false,shelf?.item&&shelf.count===1?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)));
   }catch(e){console.error('Classic Alexa:',e instanceof Error?e.message:'failed');return res.json(speak('Sorry, something went wrong. Please try again.'));}
  });

@@ -30,13 +30,16 @@ Echo speaks the reply ◀──── reply text ───────┘       
 ## Echo Show (multimodal) and open questions
 
 - **Greeting:** "Hello, I am your Virtual Store Assistant! You can ask me: how much rice is available; where is the toor dal; reconcile today's inventory and draft a restock; play the demo video. You can also ask me anything else. How can I help?" On a screen it shows the same list over the store artwork.
+- **Follow-ups:** "show me the image of that" shows the shelf of the product just discussed. A bare product name ("toor dahl") is treated as a stock question.
 - **"Where is the rice?"** speaks the published location and shows the shelf photo with the owner's yellow arrow. The data comes from the read-only customer finder (`find_product`), so no counts or costs.
 - **Stock questions** speak the MCP count. When exactly one product matches and it has a published photo, the screen shows that photo; otherwise it shows the answer card.
 - **"Play the demo video"** plays the V7 film (`/alexa/media/demo.mp4`) full screen. The microphone stays closed while it plays. When it ends, the device sends an event and the assistant asks what's next.
 - **Other questions** ("what can I cook with toor dal", "capital of France") go to the same LLM with a general-assistant prompt. They're recorded in the store's LLM audit, and the model is told never to state store data. Store intents (stock, sales, orders, approvals, "yes"/"no") always use the MCP agent.
 - Screens are APL 1.8 documents (`apl.ts`). They're sent only when the device reports `Alexa.Presentation.APL`; devices without a screen get voice only.
 
-**Console step for screens:** Build → **Interfaces** → turn on **Alexa Presentation Language** (tick the Echo Show sizes) → **Save Interfaces** → **Build skill**. Without it, the Echo Show answers by voice only.
+**Console step for screens and video:** Build → **Interfaces** → turn on **Alexa Presentation Language** (tick the Echo Show sizes) and **Video App** → **Save Interfaces** → **Build skill**. Without them the Echo Show answers by voice only. With Video App on, "play the demo video" uses the native player (`VideoApp.Launch`), streaming `/alexa/media/demo.mp4` from this server; otherwise it uses APL Video.
+
+**Diagnostics:** each request logs one line (`Classic Alexa: <request> interfaces=[…] -> <directives>`) with no user content, and Alexa's error reports (`SessionEndedRequest` errors) are logged. If the screen stays blank, `interfaces=[]` means the interfaces aren't enabled in the console.
 
 Answer quality for open questions depends on the configured LLM. The default is the self-hosted Gemma 4 E2B; setting `ANTHROPIC_API_KEY` on the server makes the store agent use Claude, but `generalAnswer` currently calls the OpenAI-compatible endpoint.
 

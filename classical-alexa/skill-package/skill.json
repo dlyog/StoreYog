@@ -60,6 +60,9 @@
                 "maxHeight": 480
               }
             ]
+          },
+          {
+            "type": "VIDEO_APP"
           }
         ]
       }

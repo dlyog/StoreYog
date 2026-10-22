@@ -65,7 +65,16 @@ try{
  res=await show(sid3,chat('how much ghee is available'));assert.match(spoken(res),/Ghee: \d+/);assert.ok(['shelf','answer'].includes(doc(res).token));console.log('Ghee        →',spoken(res),'['+doc(res).token+']');
  res=await show(sid3,chat('tell me a fun fact about turmeric'));console.log('Fun fact    →',spoken(res));assert.doesNotMatch(spoken(res),/in stock/i);assert.equal(doc(res).token,'answer');
  res=await show(sid3,chat('what is the capital of France'));console.log('General     →',spoken(res));assert.match(spoken(res),/Paris|could not answer/i);assert.equal(doc(res).token,'answer');
+ // Phrases from the first Echo Show session (Alexa spells dal as "dahl").
+ const sid4='amzn1.echo-api.session.'+crypto.randomUUID();await show(sid4,{type:'LaunchRequest'});
+ res=await show(sid4,chat('where is the dahl'));assert.equal(doc(res).token,'shelf');assert.match(spoken(res),/dal/i);console.log('Where dahl  →',spoken(res));
+ res=await show(sid4,chat('Toor dahl'));assert.match(spoken(res),/Toor dal: \d+/);assert.equal(doc(res).token,'shelf');console.log('Toor dahl   →',spoken(res));
+ res=await show(sid4,chat('can you show me the image of that'));assert.equal(doc(res).token,'shelf');assert.match(spoken(res),/Toor dal shelf/i);console.log('Image of it →',spoken(res));
+ // Echo Show with the VideoApp interface: native player streaming the MP4 from this server.
+ const vbody=envelope(sid4,chat('play the demo video'));(vbody.context.System.device as any).supportedInterfaces={'Alexa.Presentation.APL':{},'VideoApp':{}};
+ res=await (await fetch(local.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(vbody)})).json();
+ assert.equal(res.response.directives.length,1);assert.equal(res.response.directives[0].type,'VideoApp.Launch');assert.match(res.response.directives[0].videoItem.source,/\/alexa\/media\/demo\.mp4$/);assert.ok(!('shouldEndSession' in res.response)&&!res.response.reprompt);
  // The demo MP4 is local media (not in the public repo); when present it must serve byte ranges.
  const media=await fetch(local.url+'/media/demo.mp4',{headers:{Range:'bytes=0-1023'}});assert.ok(media.status===206||(media.status===404&&!existsSync('docs/pitch-v7/storeyog-live-normal.mp4')),'video '+media.status);const art=await fetch(local.url+'/media/welcome.jpg');assert.equal(art.headers.get('content-type'),'image/jpeg');assert.equal((await fetch(local.url+'/media/photo/not-an-id.jpg')).status,404);
- console.log('PASS classic Alexa: cert URL rules, forged cert rejected, unsigned request refused, greeting, Echo Show screens (welcome, video + end event, shelf photo, stock, general answer), video byte ranges, launch → real MCP rice count → restock draft → fresh yes → stop rules, session end.');
+ console.log('PASS classic Alexa: cert URL rules, forged cert rejected, unsigned request refused, greeting, Echo Show screens (welcome, APL video + end event, VideoApp native video, shelf photo, dahl and image-of-that follow-ups, stock, general answer), video byte ranges, launch → real MCP rice count → restock draft → fresh yes → stop rules, session end.');
 }finally{local.close();}
