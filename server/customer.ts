@@ -14,11 +14,15 @@ async function mcpSearch(slug:string,query:string){
  try{await client.connect(new StreamableHTTPClientTransport(new URL(`http://127.0.0.1:${config.port}/mcp`),{requestInit:{headers:{Authorization:`Bearer ${identity.key}`}}}));const result=await client.callTool({name:'find_product',arguments:{query}},undefined,{timeout:10000});if(result.isError||!result.structuredContent)throw Error('Customer lookup unavailable.');return {...result.structuredContent,audit:{requestId:(result._meta as any)?.requestId,tool:'find_product'}};}
  finally{await client.close();}
 }
+import {catalogQuestion,catalogAnswer} from './catalog-query.js';
 export function customerRouter(){const r=express.Router(),folder=path.join(path.dirname(fileURLToPath(import.meta.url)),'customer');
  r.get('/assets/handsfree.js',(_req,res)=>res.type('application/javascript').sendFile(fileURLToPath(new URL('../simulator/public/handsfree.js',import.meta.url))));
  r.get('/assets/voice-commands.js',(_req,res)=>res.type('application/javascript').sendFile(fileURLToPath(new URL('../simulator/public/voice-commands.js',import.meta.url))));
  r.get('/:slug/api/photos/:id',(req,res)=>serveCustomerPhoto(getDatabase(),req,res));
- r.get('/:slug/api/search',async(req,res)=>{if(req.params.slug.length>60||String(req.query.q||'').length>180)return res.status(400).json({error:'Use a shorter product question.'});try{res.set('Cache-Control','no-store').json(await mcpSearch(req.params.slug,String(req.query.q||'')));}catch{res.status(404).json({error:'This store finder is not published or its lookup service is unavailable.'});}});
+ r.get('/:slug/api/search',async(req,res)=>{if(req.params.slug.length>60||String(req.query.q||'').length>180)return res.status(400).json({error:'Use a shorter product question.'});try{const q=String(req.query.q||''),section=catalogQuestion(q);
+  // "What do you have?" / "what's in dairy?": the published catalog (or one section) through the same MCP tool.
+  if(section!==null){const data:any=await mcpSearch(req.params.slug,'');const items=(data.items||[]).filter((i:any)=>!section||String(i.category||'').toLowerCase().includes(section));return res.set('Cache-Control','no-store').json({...data,items,summary:catalogAnswer(data.items||[],section),catalog:true});}
+  res.set('Cache-Control','no-store').json(await mcpSearch(req.params.slug,q));}catch{res.status(404).json({error:'This store finder is not published or its lookup service is unavailable.'});}});
  r.get('/:slug',(_req,res)=>res.sendFile(path.join(folder,'index.html')));
  r.use('/assets',express.static(folder));return r;
 }

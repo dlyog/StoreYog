@@ -10,6 +10,7 @@ import {fileURLToPath} from 'node:url';
 import sharp from 'sharp';
 import type {Session} from '../simulator/agent.js';
 import {asksAboutStock,normalizeSpoken} from '../simulator/inventory-query.js';
+import {catalogQuestion} from '../server/catalog-query.js';
 import {withModelAudit} from '../simulator/model-audit.js';
 import {config} from '../server/config.js';
 import {labFetch} from '../server/lab-http.js';
@@ -182,6 +183,7 @@ export function classicAlexaRouter(options:Options){
    if((WANTS_GUIDE.test(said)||(NUTRITION.test(plain)&&!/\b(?:how\s+(?:much|many)|in\s+stock|available|where)\b/i.test(said)))&&!s.pending){const guide=pickGuide(said,alexaSession);if(guide)return res.json(playGuide(guide,alexaSession,screen));}
    const named=PRODUCT.exec(plain)?.[0];
    // "Show me the image of that": the product named now, or the last one discussed.
+   if(catalogQuestion(said)!==null&&!s.pending){const shelf=await shelfFor(said);if(shelf?.summary){const reply=shelf.summary;return res.json(speak(reply,false,screen?answerScreen(said,reply):undefined));}}
    if(WANTS_IMAGE.test(said)&&!s.pending){const product=named?plain:lastProduct.get(alexaSession);if(product){const shelf=await shelfFor(product);if(shelf?.count){const reply=shelf.item?`Here is the ${shelf.item.name} shelf. ${shelf.summary.replace(/\.{2,}/g,'.')}`:shelf.summary;if(shelf.item)lastProduct.set(alexaSession,shelf.item.name);return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}}
    if(WANTS_PLACE.test(said)&&!s.pending){const shelf=await shelfFor(said);if(shelf?.count){const reply=shelf.summary.replace(/\.{2,}/g,'.');if(shelf.item)lastProduct.set(alexaSession,shelf.item.name);return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}
    const storeTurn=!!s.pending||STORE_TOPIC.test(said)||asksAboutStock(plain)||(!!named&&!GENERAL_HINT.test(said));

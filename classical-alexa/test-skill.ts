@@ -70,6 +70,9 @@ try{
  res=await show(sid4,chat('where is the dahl'));assert.equal(doc(res).token,'shelf');assert.match(spoken(res),/dal/i);console.log('Where dahl  →',spoken(res));
  res=await show(sid4,chat('Toor dahl'));assert.match(spoken(res),/Toor dal: \d+/);assert.equal(doc(res).token,'shelf');console.log('Toor dahl   →',spoken(res));
  res=await show(sid4,chat('can you show me the image of that'));assert.equal(doc(res).token,'shelf');assert.match(spoken(res),/Toor dal shelf/i);console.log('Image of it →',spoken(res));
+ // Catalog questions: whole store and one section, names and places only.
+ res=await show(sid4,chat('what items do you have'));assert.match(spoken(res),/We carry \d+ products in \d+ sections/);console.log('Catalog     →',spoken(res).slice(0,90));
+ res=await show(sid4,chat("what's in the dairy fridge"));assert.match(spoken(res),/Dairy.*Paneer/);assert.doesNotMatch(spoken(res),/\d+ (?:packs|tubs|jugs)/);console.log('Dairy       →',spoken(res));
  // Audio guides: original scripts voiced with Kokoro, played inside the conversation with SSML audio.
  const guideOf=(r:any)=>/\/alexa\/media\/guide\/(\d+)\.mp3/.exec(r.response?.outputSpeech?.ssml||'')?.[1];
  const sid5='amzn1.echo-api.session.'+crypto.randomUUID();
@@ -84,5 +87,5 @@ try{
  assert.equal(res.response.directives.length,1);assert.equal(res.response.directives[0].type,'VideoApp.Launch');assert.match(res.response.directives[0].videoItem.source,/\/alexa\/media\/demo\.mp4$/);assert.ok(!('shouldEndSession' in res.response)&&!res.response.reprompt&&!res.response.outputSpeech);
  // The demo MP4 is local media (not in the public repo); when present it must serve byte ranges.
  const media=await fetch(local.url+'/media/demo.mp4',{headers:{Range:'bytes=0-1023'}});assert.ok(media.status===206||(media.status===404&&!existsSync('docs/pitch-v7/storeyog-live-720p.mp4')),'video '+media.status);const art=await fetch(local.url+'/media/welcome.jpg');assert.equal(art.headers.get('content-type'),'image/jpeg');assert.equal((await fetch(local.url+'/media/photo/not-an-id.jpg')).status,404);
- console.log('PASS classic Alexa: cert URL rules, forged cert rejected, unsigned request refused, greeting, Echo Show screens (welcome, APL video + end event, VideoApp native video, shelf photo, dahl and image-of-that follow-ups, audio guides and nutrition questions, stock, general answer), video byte ranges, launch → real MCP rice count → restock draft → fresh yes → stop rules, session end.');
+ console.log('PASS classic Alexa: cert URL rules, forged cert rejected, unsigned request refused, greeting, Echo Show screens (welcome, APL video + end event, VideoApp native video, shelf photo, dahl and image-of-that follow-ups, audio guides and nutrition questions, catalog and section questions, stock, general answer), video byte ranges, launch → real MCP rice count → restock draft → fresh yes → stop rules, session end.');
 }finally{local.close();}

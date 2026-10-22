@@ -1,5 +1,6 @@
 import {withModelAudit} from './model-audit.js';
 import {asksAboutStock,inventoryQuestion,stockAnswer} from './inventory-query.js';
+import {catalogQuestion} from '../server/catalog-query.js';
 import {completionUrl,completionHeaders} from '../server/ai-services.js';
 import type {DemoRole} from './demo-role.js';
 import {narrowRestock,invokesStoreYog,asksCurrentInventory} from './restock-intents.js';
@@ -47,6 +48,7 @@ export async function runAgent(session:Session,text:string,scripted:boolean,emit
    session.pending=null;session.deferredItems=previousDraft!.filter(i=>!selection.some(s=>s.item===i.item)).map(i=>i.item);
    const draft=await call('place_reorder',{items:selection,confirmed:false});const names=selection.map(i=>i.item).join(' and ');reply=`Understood. ${session.deferredItems.length?"I'll leave "+session.deferredItems.join(' and ')+" out. ":''}${selection.map(i=>`${i.qty} bags of ${i.item}`).join(' and ')} would be about $${Math.round(draft.estimatedCost)}. Shall I order just ${names} from Amazon Business?`;
   }
+  else if(catalogQuestion(text)!==null){session.pending=null;const r=await fetch(new URL('/shop/raj-demo/api/search?q='+encodeURIComponent(text),config.mcpUrl),{signal:AbortSignal.timeout(5000)});reply=r.ok?String((await r.json() as any).summary||''):'';if(!reply)reply='I could not load the product list right now.';}
   else if(asksAboutStock(text)){
    session.pending=null;const inventory=await call('get_inventory');const matches=inventoryQuestion(text,inventory.items);
    if(matches===null)reply='Please name the product you want to check, such as rice or dal.';

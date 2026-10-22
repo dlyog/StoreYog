@@ -5,7 +5,7 @@
 
 const VERSION='1.8';
 const INK='#0f1626',CARD='#ffffff',MUTED='#5f6470',BLUE='#2c62ed',AMBER='#ffc23d';
-export const SUGGESTIONS=['How much rice is available?','Where is the toor dal?',"Reconcile today's inventory and draft a restock",'Is paneer high in protein?','Play an inventory tip','Play the demo video'];
+export const SUGGESTIONS=['What items do you have?','Where is the toor dal?','How much rice is available?',"Reconcile today's inventory and draft a restock",'Is paneer high in protein?','Play the demo video'];
 
 export const supportsApl=(body:any)=>!!body?.context?.System?.device?.supportedInterfaces?.['Alexa.Presentation.APL'];
 

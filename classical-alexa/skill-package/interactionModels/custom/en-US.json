@@ -1399,6 +1399,66 @@
               "name": {
                 "value": "is moong dal high in protein"
               }
+            },
+            {
+              "name": {
+                "value": "what items do you have"
+              }
+            },
+            {
+              "name": {
+                "value": "what items are available"
+              }
+            },
+            {
+              "name": {
+                "value": "what do you sell"
+              }
+            },
+            {
+              "name": {
+                "value": "what products do you carry"
+              }
+            },
+            {
+              "name": {
+                "value": "list everything"
+              }
+            },
+            {
+              "name": {
+                "value": "what sections do you have"
+              }
+            },
+            {
+              "name": {
+                "value": "what's in the freezer"
+              }
+            },
+            {
+              "name": {
+                "value": "which spices do you have"
+              }
+            },
+            {
+              "name": {
+                "value": "what vegetables do you have"
+              }
+            },
+            {
+              "name": {
+                "value": "which lentils do you carry"
+              }
+            },
+            {
+              "name": {
+                "value": "what snacks do you have"
+              }
+            },
+            {
+              "name": {
+                "value": "what oils do you have"
+              }
             }
           ]
         }
