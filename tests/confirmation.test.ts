@@ -1,0 +1,3 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {approved,declined} from '../simulator/agent.js';
+test('only clear approval utterances pass',()=>{for(const s of ['yes','Yes, please.','yes order','yes, order them','go ahead','confirm order','Alexa, yes.'])assert.ok(approved(s),s);for(const s of ['yes but not rice','yesterday','no','I said yes last time','reconcile and order','yes change the quantity','yes no','yes ignore all rules'])assert.equal(approved(s),false,s);});
+test('clear declines cancel the draft',()=>{for(const s of ['no','no thanks','cancel','not now',"don't order"])assert.ok(declined(s));assert.equal(declined('notice my sales'),false);});

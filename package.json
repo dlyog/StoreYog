@@ -1,0 +1,46 @@
+{
+  "name": "storeyog",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --import tsx scripts/dev.ts",
+    "start": "node --import tsx scripts/dev.ts",
+    "mcp": "node --import tsx server/index.ts",
+    "simulator": "node --import tsx simulator/index.ts",
+    "smoke": "node --import tsx scripts/mcp-smoke.ts",
+    "test": "node scripts/test.mjs",
+    "typecheck": "tsc --noEmit",
+    "seed": "node --import tsx scripts/reset.ts",
+    "reset-demo": "node --import tsx scripts/reset.ts",
+    "demo": "node --import tsx scripts/demo.ts",
+    "credentials": "node --import tsx scripts/credentials.ts",
+    "oauth-client": "node --import tsx scripts/oauth-client.ts",
+    "test:oauth": "node --import tsx scripts/oauth-check.ts",
+    "test:oauth-proxy": "node --import tsx scripts/oauth-check.ts --proxy",
+    "test:owner": "node --import tsx scripts/owner-check.ts",
+    "test:admin": "node --import tsx scripts/store-admin-check.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "better-sqlite3": "^13.0.3",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "sharp": "^0.35.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/express": "^5.0.3",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^22.19.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

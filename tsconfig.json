@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2022","module":"NodeNext","moduleResolution":"NodeNext","strict":true,"esModuleInterop":true,"skipLibCheck":true,"resolveJsonModule":true,"noEmit":true,"lib":["ES2022","DOM","DOM.Iterable"]},"include":["server/**/*.ts","simulator/**/*.ts","scripts/**/*.ts","tests/**/*.ts"]}
