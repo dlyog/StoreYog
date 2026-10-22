@@ -10,4 +10,4 @@
 
 Without speech APIs, type questions. To test live hands-free speech, use the configured hosted preview or provide compatible services with `setup.py --live`. Any sentence containing **stop** stops the microphone and plays goodbye. Orders are simulated, no payment is collected and email needs a separately configured verified transport.
 
-Store administration is password/session protected. The demo reviewer is read-only and synthetic-only. Each signed-up store owner uses their own credentials and can see only their own records. Global operator functions stay on the backend port, separate from this store portal.
+Store administration is password/session protected. The demo reviewer is read-only there and synthetic-only. In the store app (`/store/`), choose **Synthetic demo store · Little India** from the Access dropdown: the same credentials are filled in and you may change anything in that fictitious store, except email and API keys, which stay disabled. Each signed-up store owner uses their own credentials and can see only their own records. Global operator functions stay on the backend port, separate from this store portal.

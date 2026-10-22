@@ -15,6 +15,12 @@ Production pipeline used in the development project:
 
 Original builder names are `capture.ts`, `produce.py`, `frames.ts`, `render.py`, plus generated `evidence.json`, `timeline.json`, `SCRIPT.md` and `video-manifest.json`. Production scripts/media are not required to run this app and are excluded here. To update the public demo, retain the old edition, capture the **current** working UI, regenerate changed narration, validate both exports, update hosted video links and the Devpost YouTube/Vimeo upload. Editing a transcript file alone does not change captured app state. Preserve permission records for music and third-party assets.
 
+## V7 live walkthrough
+
+V7 is one continuous real Chrome session on `https://storeyog.dlyog.com`: landing page, owner turns in `/simulator` with the live MCP tool trace, the customer shelf finder, the owner identity gate in `/experience`, and the protected `/store/admin` audit opened on the exact request ID from the owner's rice question (bound SQL, then LLM calls). It ends with the real output of a fresh clone running `python3 setup.py --demo --non-interactive --test`, then the three API settings for live voice. Typed turns go through the live agent and MCP server. The restock is simulated and touches only the synthetic demo tenant.
+
+The film uses the same ElevenLabs voices as above. Will narrates Raj's story with Eleven v3 audio tags; Liam and Matilda voice the typed owner and customer lines; Sarah re-voices the exact reply text the live app spoke with its own Kokoro TTS. Where a voiced line is longer than the live clip, the screen is held still rather than reordered. Audio is normalized to −14 LUFS. Raj and the customer are fictional.
+
 ## ElevenLabs details
 
 ElevenLabs was used **offline for the pitch**, not as the application’s live TTS provider. Model: `eleven_multilingual_v2`; output: `mp3_44100_128`. Requests use `POST https://api.elevenlabs.io/v1/text-to-speech/{voice_id}` with the private `xi-api-key` header. Tested narration settings were stability 0.48, similarity boost 0.75, style 0.15 and speaker boost enabled.

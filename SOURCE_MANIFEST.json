@@ -1,7 +1,7 @@
 {
   "version": 1,
   "generatedAt": "2026-10-22",
-  "sourceRevision": "development checkout after authenticated store-admin and model-audit updates",
+  "sourceRevision": "development checkout after landing redesign and shared editable synthetic store login",
   "files": [
     {
       "path": ".env.example",
@@ -18,13 +18,13 @@
       "path": ".gitignore",
       "sha256": "a61e7e36d47eb64bb75f63ef5eeaf3067e012060c8981ae8fdd8e894b09780f8",
       "kind": "adapted",
-      "sourceSha256": "41d7f663d6a998045d4a014abe3fc3f9aa97be75abb03c6faad3f30ab095a1d6"
+      "sourceSha256": "2d0b1ed383c807dfc379f467f8c91fc8becb356e2fcf3dfce816b7738f397d47"
     },
     {
       "path": "AGENTS.md",
-      "sha256": "f0473c77e8f21672864e3809477ed1b7d69fed9c91bda21a1d4367bf703f7b38",
+      "sha256": "449ee5d1b77bfc58bf0a5a4069a5ee1982b857e100a7cebffa08b39edb0cd936",
       "kind": "adapted",
-      "sourceSha256": "f8340fe9abd486068ced4b0a7acf7c40c65494abf493dca579994aee2470036e"
+      "sourceSha256": "83b29734d424e7cb261f97a3738606d4d3febc992c06d1c49eb56218971e4513"
     },
     {
       "path": "CLAUDE.md",
@@ -34,7 +34,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "f34f46575be03ffdc1489e69ac9269cda431ed919a91d87c39792307e7777af9",
+      "sha256": "b5b8c67c0f5b8dd69f58119099c627ff3cbf91c43b5a9318f3d2c6df3517a82f",
       "kind": "adapted",
       "sourceSha256": "96c471ffbd7e061433dfb9060cdb9a507bc0d227ac38cb37c7d773def60253b2"
     },
@@ -56,7 +56,7 @@
     },
     {
       "path": "docs/JUDGE_GUIDE.md",
-      "sha256": "5a8fc6263265272289f274ec363f7c64989562a60e417e0f1d5f29626c797301",
+      "sha256": "aef5f373abe9ccffb48177e69f2bad382a5ff9d23be899b2523dcf80869f8112",
       "kind": "public-only"
     },
     {
@@ -77,7 +77,7 @@
     },
     {
       "path": "docs/VIDEO.md",
-      "sha256": "9fd2bd44cf396ec8223581b22110d987354f958c8f9b0135eedb36424aaf910f",
+      "sha256": "921d9145d80579eef30d3d8398e1754db43a8dfb7079ea41e5668444c2d0ed5d",
       "kind": "public-only"
     },
     {
@@ -180,6 +180,12 @@
       "sha256": "31d8675e220022c7a9740fd7b765749e230643036d89019db2dc6341ff40084d",
       "kind": "shared",
       "sourceSha256": "31d8675e220022c7a9740fd7b765749e230643036d89019db2dc6341ff40084d"
+    },
+    {
+      "path": "scripts/shared-demo-login-check.ts",
+      "kind": "shared",
+      "sha256": "e10ca8d5a60eb7a60027eea33bead4ac6ec6c9c8fb96892876e09161314551b4",
+      "sourceSha256": "e10ca8d5a60eb7a60027eea33bead4ac6ec6c9c8fb96892876e09161314551b4"
     },
     {
       "path": "scripts/store-admin-check.ts",
@@ -337,27 +343,27 @@
     },
     {
       "path": "server/owner.ts",
-      "sha256": "2c12a2a409bdc7728273d66c8eca08a407ed49599a582e3f9927fe73735be1c2",
+      "sha256": "eeb482d91e19f1dfaef79dfdc7253cf2e382b5ffbd771b9ed51bfc34af07bfdc",
       "kind": "adapted",
-      "sourceSha256": "3586cb0adf8c56621df0b9a79e3f5392415e063e842570dcb53ba80608cd7958"
+      "sourceSha256": "b183689bb273f130afe7a5eebd18f7282e10a2a54c50642580b19673f91d8588"
     },
     {
       "path": "server/owner/app.js",
-      "sha256": "114222f13e3f601b282cb5878a4044a6fa9a1c112e4acb262d0b77fb19e92878",
+      "sha256": "2665e7a3e34e868eab6069d38750936ff67bb9ad53d98dbb75c077a39330a7d0",
       "kind": "shared",
-      "sourceSha256": "114222f13e3f601b282cb5878a4044a6fa9a1c112e4acb262d0b77fb19e92878"
+      "sourceSha256": "2665e7a3e34e868eab6069d38750936ff67bb9ad53d98dbb75c077a39330a7d0"
     },
     {
       "path": "server/owner/index.html",
-      "sha256": "afe9bfa099b291284aefd5682b7892b8d5c763005ebe18824e1372ca43ea6e2a",
+      "sha256": "ac24b45bca7641c17f3b227d56396f00f56a5ce7c2e1ab0dd4bf16516fe9249d",
       "kind": "shared",
-      "sourceSha256": "afe9bfa099b291284aefd5682b7892b8d5c763005ebe18824e1372ca43ea6e2a"
+      "sourceSha256": "ac24b45bca7641c17f3b227d56396f00f56a5ce7c2e1ab0dd4bf16516fe9249d"
     },
     {
       "path": "server/owner/style.css",
-      "sha256": "fde352223463a35b8e0c041fc56aa92ec923309eb86030d3772dbd0ce80d65d6",
+      "sha256": "a5a5642a555775c844dddda7ae9417920ff8c2bc4337230f70c1467ed61151e4",
       "kind": "shared",
-      "sourceSha256": "fde352223463a35b8e0c041fc56aa92ec923309eb86030d3772dbd0ce80d65d6"
+      "sourceSha256": "a5a5642a555775c844dddda7ae9417920ff8c2bc4337230f70c1467ed61151e4"
     },
     {
       "path": "server/photos.ts",
@@ -462,9 +468,9 @@
     },
     {
       "path": "simulator/landing/app.js",
-      "sha256": "4a75be593bfb45f506b50bc7a7ad05d3f355ae9dca7767917e7a7afd428d6990",
+      "sha256": "31d1e4a981af20ef4762d3961801ccdd3f257d7960f4519139bd0c551a6832b4",
       "kind": "shared",
-      "sourceSha256": "4a75be593bfb45f506b50bc7a7ad05d3f355ae9dca7767917e7a7afd428d6990"
+      "sourceSha256": "31d1e4a981af20ef4762d3961801ccdd3f257d7960f4519139bd0c551a6832b4"
     },
     {
       "path": "simulator/landing/assets/console-sql.png",
@@ -539,6 +545,36 @@
       "sourceSha256": "f4ba5a3e655af622b5a7a398be701b95aa9b905074f59fc31ee7281ec66059cf"
     },
     {
+      "path": "simulator/landing/assets/store-app.webp",
+      "kind": "shared",
+      "sha256": "7e11bc0726347a0f72eff667159005f33aee33d38b1d67016ef76f19b1bec9db",
+      "sourceSha256": "7e11bc0726347a0f72eff667159005f33aee33d38b1d67016ef76f19b1bec9db"
+    },
+    {
+      "path": "simulator/landing/assets/store-customer.webp",
+      "kind": "shared",
+      "sha256": "184eb0aa97b4577b0d2751afb0f16e547c32ebd40bb404ff829033cd72bb12df",
+      "sourceSha256": "184eb0aa97b4577b0d2751afb0f16e547c32ebd40bb404ff829033cd72bb12df"
+    },
+    {
+      "path": "simulator/landing/assets/store-owner-cleaning.webp",
+      "kind": "shared",
+      "sha256": "1c8aa504f8bf7aeca16819366a99976c97f323e6c2729af1de13d88e279dce4b",
+      "sourceSha256": "1c8aa504f8bf7aeca16819366a99976c97f323e6c2729af1de13d88e279dce4b"
+    },
+    {
+      "path": "simulator/landing/assets/store-owner-evening.webp",
+      "kind": "shared",
+      "sha256": "419068ff51fa588c27ec9daa56c8d9b89d1e6d0b652e8fc53e7097cf94f28fea",
+      "sourceSha256": "419068ff51fa588c27ec9daa56c8d9b89d1e6d0b652e8fc53e7097cf94f28fea"
+    },
+    {
+      "path": "simulator/landing/assets/store-shelf.webp",
+      "kind": "shared",
+      "sha256": "7df4ea905ef63f5670b7f634ce3159aabab9a3257fa868960109a82c809a8d2f",
+      "sourceSha256": "7df4ea905ef63f5670b7f634ce3159aabab9a3257fa868960109a82c809a8d2f"
+    },
+    {
       "path": "simulator/landing/assets/stores.png",
       "sha256": "d19b13ba8697765c13088ad68198db77142fa344f2cccc1acfb019321b87605b",
       "kind": "shared",
@@ -552,15 +588,15 @@
     },
     {
       "path": "simulator/landing/index.html",
-      "sha256": "32f5e96dd3a22e370dd081b527463d09e5a5094d5307c36cfbaa3fda16dae5e0",
+      "sha256": "0a09d829ae4375c53447005517c894d8f258bf2c50f7ae48f947886e53315f0c",
       "kind": "adapted",
-      "sourceSha256": "42281c8e1fdd333ece5c88840e7b6aa651e279503e967a14f1f6c011f4190d96"
+      "sourceSha256": "601405a071f2d1135b19b30b12e1825c12bed9a54be39643cafbc658168ea4b3"
     },
     {
       "path": "simulator/landing/style.css",
-      "sha256": "e26ef81675a1d28b12d65df1c3917cbb3227e65eff5bb0c5f1593b5c65b06c38",
+      "sha256": "a9f7b5e247954f5e7f27e392e6a3414647e865c733d4283c2f48001bc485f272",
       "kind": "shared",
-      "sourceSha256": "e26ef81675a1d28b12d65df1c3917cbb3227e65eff5bb0c5f1593b5c65b06c38"
+      "sourceSha256": "a9f7b5e247954f5e7f27e392e6a3414647e865c733d4283c2f48001bc485f272"
     },
     {
       "path": "simulator/model-audit.ts",

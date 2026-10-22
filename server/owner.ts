@@ -1,11 +1,14 @@
-import {storeAdminRouter} from './store-admin.js';
+import {storeAdminRouter,DEMO_AUDIT_LOGIN} from './store-admin.js';
 import {mountOwnerPhotos} from './photos.js';
 import {registerStore,saveProduct,profile,productInput} from './catalog.js';
 import {provisionKey} from './auth.js';
 import express from 'express';import path from 'node:path';import {fileURLToPath} from 'node:url';import {randomBytes} from 'node:crypto';import {z} from 'zod';
 import {getDatabase} from './database.js';import {Store,storeDate,type OrderLine} from './store.js';import {ownerLogin,bootstrapOwner} from './owner-auth.js';import {ALL_SCOPES} from './auth.js';import {recordCall,securityEvent,type CallContext} from './observability.js';import {inventoryReport,sendInventoryReport,salesReport,sendSalesReport} from './reports.js';import type {Credentials} from './credentials.js';
-type OwnerSession={userId:string;csrf:string;expires:number;pending?:{id:string;items:OrderLine[];expires:number};assistant?:{id:string;kind:string;items?:string[];item?:string;stock?:number;expectedStock?:number;expires:number}};
+type OwnerSession={userId:string;csrf:string;expires:number;sharedDemo?:boolean;pending?:{id:string;items:OrderLine[];expires:number};assistant?:{id:string;kind:string;items?:string[];item?:string;stock?:number;expectedStock?:number;expires:number}};
+// The shared synthetic demo login may change the demo store, but never sends email (or previews recipients) or mints API keys.
+const SHARED_DEMO_BLOCKED=/^(?:POST \/(?:report\/send|report\/sales\/send|owner-key|customer-key)|GET \/report\/(?:preview|sales\/preview))$/;
 export function ownerRouter(credentials:Credentials){
+ const demoReviewAllowed=()=>process.env.MCP_DEMO_LOGIN==='true'&&!!db.one("SELECT s.id FROM stores s JOIN store_profiles p ON p.store_id=s.id WHERE s.id='little-india' AND s.active=1 AND p.kind='demo'");
  bootstrapOwner(credentials);const router=express.Router(),sessions=new Map<string,OwnerSession>(),attempts=new Map<string,{count:number;since:number}>();
  const db=getDatabase();setInterval(()=>{for(const [id,s]of sessions)if(s.expires<Date.now())sessions.delete(id);for(const [id,a]of attempts)if(Date.now()-a.since>900000)attempts.delete(id);},300000).unref();
  router.use('/api',(_req,res,next)=>{res.set('Cache-Control','no-store');next();});
@@ -15,19 +18,23 @@ export function ownerRouter(credentials:Credentials){
  router.post('/api/signup',(req,res)=>{const ip='signup:'+req.ip,limit=attempts.get(ip)||{count:0,since:Date.now()};if(Date.now()-limit.since>3600000){limit.count=0;limit.since=Date.now();}attempts.set(ip,limit);if(++limit.count>5)return res.status(429).json({error:'Please try registration again later.'});try{if(Number(db.one('SELECT COUNT(*) AS n FROM store_profiles')?.n)>250)return res.status(503).json({error:'Preview registration is full.'});res.status(201).json(registerStore(db,req.body));}catch(e){res.status(400).json({error:e instanceof z.ZodError?'Use a store name, address of 3–60 lowercase letters/numbers/hyphens, email and password of at least 12 characters.':'Unable to create that store. Choose an unused store address and email.'});}});
  router.post('/api/login',(req,res)=>{
   const ip=req.ip||'unknown',attempt=attempts.get(ip)||{count:0,since:Date.now()};if(Date.now()-attempt.since>900000){attempt.count=0;attempt.since=Date.now();}attempts.set(ip,attempt);if(++attempt.count>10)return res.status(429).json({error:'Too many attempts. Try again in 15 minutes.'});
-  let user;if(process.env.MCP_DEMO_LOGIN==='true'&&req.body?.profile==='judge-demo')user=db.one('SELECT u.*,s.name AS store_name FROM owner_users u JOIN stores s ON s.id=u.store_id WHERE u.store_id=? AND u.active=1 AND s.active=1 LIMIT 1',[credentials.storeId]);
+  // Prefilled synthetic credentials open the shared demo tenant's workspace (judges may edit it).
+  const reviewer=demoReviewAllowed()&&req.body?.email===DEMO_AUDIT_LOGIN.email&&req.body?.password===DEMO_AUDIT_LOGIN.password;
+  let user;if(reviewer)user=db.one("SELECT u.*,s.name AS store_name FROM owner_users u JOIN stores s ON s.id=u.store_id WHERE u.store_id='little-india' AND u.active=1 AND s.active=1 ORDER BY u.rowid LIMIT 1");
+  else if(process.env.MCP_DEMO_LOGIN==='true'&&req.body?.profile==='judge-demo')user=db.one('SELECT u.*,s.name AS store_name FROM owner_users u JOIN stores s ON s.id=u.store_id WHERE u.store_id=? AND u.active=1 AND s.active=1 LIMIT 1',[credentials.storeId]);
   else{const input=z.object({email:z.string().email().max(254),password:z.string().min(1).max(256)}).safeParse(req.body);if(input.success)user=ownerLogin(input.data.email,input.data.password);}
   if(!user){securityEvent('owner_login_denied');return res.status(401).json({error:'Email or password was not recognized.'});}if(sessions.size>=1000)return res.status(503).json({error:'Too many active sessions.'});
-  attempts.delete(ip);const id=randomBytes(32).toString('base64url'),csrf=randomBytes(32).toString('base64url');sessions.set(id,{userId:user.id,csrf,expires:Date.now()+8*3600000});res.cookie('sp_owner',id,{httpOnly:true,sameSite:'strict',secure:process.env.COOKIE_SECURE==='true',path:'/store',maxAge:8*3600000});res.json({ok:true,csrf});
+  attempts.delete(ip);const id=randomBytes(32).toString('base64url'),csrf=randomBytes(32).toString('base64url');sessions.set(id,{userId:user.id,csrf,expires:Date.now()+(reviewer?2:8)*3600000,sharedDemo:reviewer||undefined});res.cookie('sp_owner',id,{httpOnly:true,sameSite:'strict',secure:process.env.COOKIE_SECURE==='true',path:'/store',maxAge:8*3600000});res.json({ok:true,csrf});
  });
  router.use('/api',(req,res,next)=>{const cookie=req.headers.cookie?.split(';').map(v=>v.trim()).find(v=>v.startsWith('sp_owner='))?.slice(9),session=cookie?sessions.get(cookie):undefined;
   if(!session||session.expires<Date.now())return res.status(401).json({error:'Sign in to your store.'});const user=db.one('SELECT u.*,s.name AS store_name FROM owner_users u JOIN stores s ON s.id=u.store_id WHERE u.id=? AND u.active=1 AND s.active=1',[session.userId]);if(!user)return res.status(401).json({error:'Store access is no longer active.'});
-  if(!['GET','HEAD'].includes(req.method)&&req.get('x-csrf-token')!==session.csrf)return res.status(403).json({error:'Session check failed. Refresh the page.'});res.locals.session=session;res.locals.owner=user;res.locals.cookie=cookie;next();
+  if(!['GET','HEAD'].includes(req.method)&&req.get('x-csrf-token')!==session.csrf)return res.status(403).json({error:'Session check failed. Refresh the page.'});res.locals.session=session;res.locals.owner=session.sharedDemo?{...user,email:DEMO_AUDIT_LOGIN.email}:user;res.locals.cookie=cookie;next();
  });
+ router.use('/api',(req,res,next)=>{if(!res.locals.session.sharedDemo||!SHARED_DEMO_BLOCKED.test(req.method+' '+req.path))return next();securityEvent('owner_shared_demo_denied');res.status(403).json({error:'The shared synthetic store cannot send email or create API keys. Create your own store to try those.'});});
  const store=(res:express.Response)=>new Store(storeDate,db,res.locals.owner.store_id,res.locals.owner.store_name);
  async function audited(res:express.Response,name:string,fn:()=>any){const start=performance.now(),owner=res.locals.owner,ctx:CallContext={id:crypto.randomUUID(),identity:{storeId:owner.store_id,storeName:owner.store_name,keyId:owner.id,scopes:[...ALL_SCOPES]},queries:[],summary:'',invoked:true};const traced=db.traced(fn);ctx.queries=traced.queries;try{if(traced.error)throw traced.error;const data=await traced.value;ctx.summary=data?.summary||'Owner action completed';return data;}catch(error){ctx.error=error instanceof Error?error.message:'Owner action failed';throw error;}finally{recordCall(ctx,'owner/api',name,{},performance.now()-start);}}
  mountOwnerPhotos(router,db);
- router.get('/api/session',(_req,res)=>res.json({csrf:res.locals.session.csrf,email:res.locals.owner.email,storeId:res.locals.owner.store_id,storeName:res.locals.owner.store_name}));
+ router.get('/api/session',(_req,res)=>res.json({sharedDemo:!!res.locals.session.sharedDemo,csrf:res.locals.session.csrf,email:res.locals.owner.email,storeId:res.locals.owner.store_id,storeName:res.locals.owner.store_name}));
  router.post('/api/logout',(_req,res)=>{sessions.delete(res.locals.cookie);res.clearCookie('sp_owner',{path:'/store'});res.json({ok:true});});
  router.get('/api/overview',(_req,res)=>{const s=store(res);res.json({inventory:s.inventory(),sales:s.sales(),orders:s.orders(),adjustments:db.query('SELECT * FROM inventory_adjustments WHERE store_id=? ORDER BY created_at DESC LIMIT 30',[s.storeId]),reports:db.query('SELECT id,recipient,status,created_at FROM inventory_reports WHERE store_id=? ORDER BY created_at DESC LIMIT 20',[s.storeId])});});
  router.post('/api/reconcile',async(_req,res,next)=>{try{res.json(await audited(res,'reconcile_inventory',()=>store(res).reconcile()));}catch(e){next(e);}});

@@ -40,7 +40,7 @@ Use the URLs printed by setup, since port 3100 may have been occupied.
 1. Open the landing page, then **Echo simulator** (`/simulator`). Click **Run demo script** to execute real MCP reconciliation, a draft and a simulated confirmed order. The assistant is explicitly deterministic in this mode; tool/database results are real.
 2. Type **“How much rice is available?”**. The answer is computed from actual MCP inventory rows, not a generated count. Follow **Verify call** to `/store/admin?request=<UUID>` and inspect the matching persisted result/SQL.
 3. Open `/experience`, type **“Alexa, open StoreYog”**, then **customer**, then **“Do you have dal?”**. You see public availability, shelf directions and an image. Start another owner walkthrough with the launch phrase, choose **owner**, enter demo PIN **1234**, then ask about inventory. This PIN grants access only to the fictitious store.
-4. Open `/store/`. On the local demo instance select the preconfigured judge owner profile to inspect inventory, photos, POS and orders. Or register an independent store, which starts empty and keeps its data separate. Review the basket before confirming any simulated restock.
+4. Open `/store/`. **Synthetic demo store · Little India** is selected in the Access dropdown with its credentials (`reviewer@little-india.example` / `LittleIndiaDemo123!`) filled in, here and on the hosted site. Open it to inspect and change inventory, photos, POS and orders; email and API keys stay disabled for this shared demo. Or register an independent store, which starts empty and keeps its data separate. Review the basket before confirming any simulated restock.
 5. Open the **MCP administrator console** at the backend URL printed below the app URLs (`http://localhost:<backend-port>/console/`). Select **Judge demo administrator** and sign in. Inspect tool calls, errors, latency and SQL. Store administration requires password/session authentication. Select the prefilled Little India reviewer for read-only synthetic audit access; real owners use their own store credentials.
 
 Default mode uses typed questions and real MCP/SQLite. It does not fake microphone transcription or model inference. Live microphone input and spoken replies require optional STT/TTS services; use the hosted experience for the full configured voice demo. If you enable voice, click once to stay hands-free, pause to submit, speak to interrupt, and say any sentence containing **stop** to disconnect and hear goodbye. The UI shows microphone off. Browser speech requires localhost/HTTPS and microphone permission. Physical speaker echo behavior depends on browser/hardware.
@@ -55,7 +55,19 @@ python3 setup.py --live
 python3 setup.py --live --non-interactive
 ```
 
-The script asks for three base URLs, optional hidden API keys, model IDs and speech formats. It reads existing `.env` values first. Keys remain in ignored local `.env`, never browser code or Git. It sends one small functional request to each configured provider; **your provider can charge for these requests**. Failed/unconfigured AI does not prevent the deterministic MCP demo. Speech can be configured even without an LLM.
+The live simulator needs exactly **three API base URLs**: an LLM, speech-to-text and text-to-speech. Either answer the prompts or put them in `.env` before running `--live --non-interactive`:
+
+```dotenv
+LLM_API=https://your-llm.example.com/v1        # OpenAI-compatible chat completions
+LLM_API_KEY=                                   # optional, kept server-side
+TRAINIUM_LLM_MODEL=your-model-id
+STP_API=https://your-stt.example.com           # speech-to-text
+STT_API_FORMAT=openai                          # or whisper (custom /transcribe)
+TTS_API=https://your-tts.example.com           # text-to-speech
+TTS_API_FORMAT=openai                          # or kokoro (custom /generate-audio-binary/)
+```
+
+The example hosts are placeholders. The script asks for three base URLs, optional hidden API keys, model IDs and speech formats. It reads existing `.env` values first. Keys remain in ignored local `.env`, never browser code or Git. It sends one small functional request to each configured provider; **your provider can charge for these requests**. Failed/unconfigured AI does not prevent the deterministic MCP demo. Speech can be configured even without an LLM.
 
 Supported adapters:
 
