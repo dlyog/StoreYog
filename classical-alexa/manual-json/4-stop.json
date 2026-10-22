@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "session": {
+    "new": false,
+    "sessionId": "amzn1.echo-api.session.manual-test",
+    "application": {
+      "applicationId": "amzn1.ask.skill.YOUR-SKILL-ID"
+    },
+    "user": {
+      "userId": "amzn1.ask.account.manual-test"
+    }
+  },
+  "context": {
+    "System": {
+      "application": {
+        "applicationId": "amzn1.ask.skill.YOUR-SKILL-ID"
+      },
+      "user": {
+        "userId": "amzn1.ask.account.manual-test"
+      },
+      "device": {
+        "deviceId": "amzn1.ask.device.manual-test",
+        "supportedInterfaces": {}
+      },
+      "apiEndpoint": "https://api.amazonalexa.com"
+    }
+  },
+  "request": {
+    "type": "IntentRequest",
+    "intent": {
+      "name": "AMAZON.StopIntent",
+      "confirmationStatus": "NONE"
+    },
+    "requestId": "amzn1.echo-api.request.manual-test",
+    "timestamp": "REPLACE_WITH_CURRENT_UTC_TIME",
+    "locale": "en-US"
+  }
+}

@@ -1,0 +1,873 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "little yog",
+      "intents": [
+        {
+          "name": "ChatIntent",
+          "slots": [
+            {
+              "name": "text",
+              "type": "ANYTHING"
+            }
+          ],
+          "samples": [
+            "{text}"
+          ]
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        }
+      ],
+      "types": [
+        {
+          "name": "ANYTHING",
+          "values": [
+            {
+              "name": {
+                "value": "how much atta is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have atta"
+              }
+            },
+            {
+              "name": {
+                "value": "how many atta are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is atta in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder atta"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five atta"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the atta"
+              }
+            },
+            {
+              "name": {
+                "value": "how much basmati rice is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have basmati rice"
+              }
+            },
+            {
+              "name": {
+                "value": "how many basmati rice are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is basmati rice in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder basmati rice"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five basmati rice"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the basmati rice"
+              }
+            },
+            {
+              "name": {
+                "value": "how much chana dal is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have chana dal"
+              }
+            },
+            {
+              "name": {
+                "value": "how many chana dal are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is chana dal in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder chana dal"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five chana dal"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the chana dal"
+              }
+            },
+            {
+              "name": {
+                "value": "how much cumin seeds is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have cumin seeds"
+              }
+            },
+            {
+              "name": {
+                "value": "how many cumin seeds are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is cumin seeds in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder cumin seeds"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five cumin seeds"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the cumin seeds"
+              }
+            },
+            {
+              "name": {
+                "value": "how much frozen parathas is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have frozen parathas"
+              }
+            },
+            {
+              "name": {
+                "value": "how many frozen parathas are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is frozen parathas in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder frozen parathas"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five frozen parathas"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the frozen parathas"
+              }
+            },
+            {
+              "name": {
+                "value": "how much garam masala is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have garam masala"
+              }
+            },
+            {
+              "name": {
+                "value": "how many garam masala are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is garam masala in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder garam masala"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five garam masala"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the garam masala"
+              }
+            },
+            {
+              "name": {
+                "value": "how much ghee is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have ghee"
+              }
+            },
+            {
+              "name": {
+                "value": "how many ghee are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is ghee in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder ghee"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five ghee"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the ghee"
+              }
+            },
+            {
+              "name": {
+                "value": "how much ginger is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have ginger"
+              }
+            },
+            {
+              "name": {
+                "value": "how many ginger are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is ginger in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder ginger"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five ginger"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the ginger"
+              }
+            },
+            {
+              "name": {
+                "value": "how much mustard oil is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have mustard oil"
+              }
+            },
+            {
+              "name": {
+                "value": "how many mustard oil are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is mustard oil in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder mustard oil"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five mustard oil"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the mustard oil"
+              }
+            },
+            {
+              "name": {
+                "value": "how much onions is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have onions"
+              }
+            },
+            {
+              "name": {
+                "value": "how many onions are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is onions in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder onions"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five onions"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the onions"
+              }
+            },
+            {
+              "name": {
+                "value": "how much paneer is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have paneer"
+              }
+            },
+            {
+              "name": {
+                "value": "how many paneer are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is paneer in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder paneer"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five paneer"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the paneer"
+              }
+            },
+            {
+              "name": {
+                "value": "how much samosa wrappers is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have samosa wrappers"
+              }
+            },
+            {
+              "name": {
+                "value": "how many samosa wrappers are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is samosa wrappers in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder samosa wrappers"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five samosa wrappers"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the samosa wrappers"
+              }
+            },
+            {
+              "name": {
+                "value": "how much tea is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have tea"
+              }
+            },
+            {
+              "name": {
+                "value": "how many tea are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is tea in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder tea"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five tea"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the tea"
+              }
+            },
+            {
+              "name": {
+                "value": "how much toor dal is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have toor dal"
+              }
+            },
+            {
+              "name": {
+                "value": "how many toor dal are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is toor dal in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder toor dal"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five toor dal"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the toor dal"
+              }
+            },
+            {
+              "name": {
+                "value": "how much turmeric is available"
+              }
+            },
+            {
+              "name": {
+                "value": "do we have turmeric"
+              }
+            },
+            {
+              "name": {
+                "value": "how many turmeric are left"
+              }
+            },
+            {
+              "name": {
+                "value": "is turmeric in stock"
+              }
+            },
+            {
+              "name": {
+                "value": "reorder turmeric"
+              }
+            },
+            {
+              "name": {
+                "value": "receive five turmeric"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the turmeric"
+              }
+            },
+            {
+              "name": {
+                "value": "how much rice do we have"
+              }
+            },
+            {
+              "name": {
+                "value": "do you have rice"
+              }
+            },
+            {
+              "name": {
+                "value": "how much dal do we have"
+              }
+            },
+            {
+              "name": {
+                "value": "do you have dal"
+              }
+            },
+            {
+              "name": {
+                "value": "how much masala do we have"
+              }
+            },
+            {
+              "name": {
+                "value": "do you have masala"
+              }
+            },
+            {
+              "name": {
+                "value": "how much cumin do we have"
+              }
+            },
+            {
+              "name": {
+                "value": "do you have cumin"
+              }
+            },
+            {
+              "name": {
+                "value": "how much parathas do we have"
+              }
+            },
+            {
+              "name": {
+                "value": "do you have parathas"
+              }
+            },
+            {
+              "name": {
+                "value": "how much samosas do we have"
+              }
+            },
+            {
+              "name": {
+                "value": "do you have samosas"
+              }
+            },
+            {
+              "name": {
+                "value": "how is my store doing"
+              }
+            },
+            {
+              "name": {
+                "value": "how is my inventory"
+              }
+            },
+            {
+              "name": {
+                "value": "what did I sell today"
+              }
+            },
+            {
+              "name": {
+                "value": "show today's sales summary"
+              }
+            },
+            {
+              "name": {
+                "value": "which items are low"
+              }
+            },
+            {
+              "name": {
+                "value": "what is running low"
+              }
+            },
+            {
+              "name": {
+                "value": "reconcile today's inventory"
+              }
+            },
+            {
+              "name": {
+                "value": "reconcile today's inventory and draft a restock for the low items"
+              }
+            },
+            {
+              "name": {
+                "value": "draft a restock"
+              }
+            },
+            {
+              "name": {
+                "value": "what should I restock tomorrow"
+              }
+            },
+            {
+              "name": {
+                "value": "how much did I make today"
+              }
+            },
+            {
+              "name": {
+                "value": "what are my best sellers"
+              }
+            },
+            {
+              "name": {
+                "value": "show inventory alerts"
+              }
+            },
+            {
+              "name": {
+                "value": "what's my stock value"
+              }
+            },
+            {
+              "name": {
+                "value": "how many items are below the reorder threshold"
+              }
+            },
+            {
+              "name": {
+                "value": "what is the status of my order"
+              }
+            },
+            {
+              "name": {
+                "value": "cancel the restock"
+              }
+            },
+            {
+              "name": {
+                "value": "just reorder rice"
+              }
+            },
+            {
+              "name": {
+                "value": "order thirty bags of basmati rice"
+              }
+            },
+            {
+              "name": {
+                "value": "dal is too expensive today we'll wait on that"
+              }
+            },
+            {
+              "name": {
+                "value": "yes"
+              }
+            },
+            {
+              "name": {
+                "value": "yes go ahead"
+              }
+            },
+            {
+              "name": {
+                "value": "yes please"
+              }
+            },
+            {
+              "name": {
+                "value": "no"
+              }
+            },
+            {
+              "name": {
+                "value": "no thanks"
+              }
+            },
+            {
+              "name": {
+                "value": "not now"
+              }
+            },
+            {
+              "name": {
+                "value": "thank you"
+              }
+            },
+            {
+              "name": {
+                "value": "that's all"
+              }
+            },
+            {
+              "name": {
+                "value": "help me with my inventory"
+              }
+            },
+            {
+              "name": {
+                "value": "tell me about my store"
+              }
+            },
+            {
+              "name": {
+                "value": "play the demo video"
+              }
+            },
+            {
+              "name": {
+                "value": "play the demo"
+              }
+            },
+            {
+              "name": {
+                "value": "show me the demo video"
+              }
+            },
+            {
+              "name": {
+                "value": "watch the video"
+              }
+            },
+            {
+              "name": {
+                "value": "where is the rice"
+              }
+            },
+            {
+              "name": {
+                "value": "where can I find toor dal"
+              }
+            },
+            {
+              "name": {
+                "value": "show me where the ghee is"
+              }
+            },
+            {
+              "name": {
+                "value": "which aisle has the spices"
+              }
+            },
+            {
+              "name": {
+                "value": "what can you do"
+              }
+            },
+            {
+              "name": {
+                "value": "what can I ask"
+              }
+            },
+            {
+              "name": {
+                "value": "what can I cook with toor dal"
+              }
+            },
+            {
+              "name": {
+                "value": "give me a recipe with paneer"
+              }
+            },
+            {
+              "name": {
+                "value": "tell me a fun fact about turmeric"
+              }
+            },
+            {
+              "name": {
+                "value": "tell me a joke"
+              }
+            },
+            {
+              "name": {
+                "value": "what is the capital of France"
+              }
+            },
+            {
+              "name": {
+                "value": "how do I store rice"
+              }
+            },
+            {
+              "name": {
+                "value": "is ghee healthy"
+              }
+            },
+            {
+              "name": {
+                "value": "what time is it in India"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

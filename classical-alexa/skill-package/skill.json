@@ -1,0 +1,79 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "name": "StoreYog",
+          "summary": "Talk to your small store: stock, sales and restocks from a real MCP server.",
+          "description": "StoreYog demo skill. Everything you say is sent to the StoreYog assistant, which answers from the store's real inventory records using MCP tools. Uses a fictitious demo store; orders are simulated.",
+          "examplePhrases": [
+            "Alexa, open little yog",
+            "how much rice is available",
+            "reconcile today's inventory and draft a restock for the low items"
+          ],
+          "keywords": [
+            "inventory",
+            "store",
+            "grocery"
+          ]
+        }
+      },
+      "isAvailableWorldwide": false,
+      "distributionCountries": [
+        "US"
+      ],
+      "category": "BUSINESS_AND_FINANCE",
+      "testingInstructions": "Development-stage demo on a fictitious store."
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "https://storeyog.dlyog.com/alexa",
+          "sslCertificateType": "Trusted"
+        },
+        "interfaces": [
+          {
+            "type": "ALEXA_PRESENTATION_APL",
+            "supportedViewports": [
+              {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minWidth": 960,
+                "maxWidth": 1279,
+                "minHeight": 480,
+                "maxHeight": 599
+              },
+              {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minWidth": 1280,
+                "maxWidth": 1920,
+                "minHeight": 600,
+                "maxHeight": 1200
+              },
+              {
+                "mode": "HUB",
+                "shape": "ROUND",
+                "minWidth": 480,
+                "maxWidth": 480,
+                "minHeight": 480,
+                "maxHeight": 480
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false,
+      "locales": {
+        "en-US": {}
+      }
+    }
+  }
+}

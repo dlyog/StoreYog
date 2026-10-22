@@ -9,7 +9,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from '../server/config.js';
 import {runAgent,type Session} from './agent.js';
-const app=express();if(process.env.TRUST_PROXY)app.set('trust proxy',process.env.TRUST_PROXY);app.disable('x-powered-by');app.use(oauthIngressProxy);app.use('/store/api/photos',express.json({limit:'9mb'}));app.use(express.json({limit:'32kb'}));
+const app=express();if(process.env.TRUST_PROXY)app.set('trust proxy',process.env.TRUST_PROXY);app.disable('x-powered-by');app.use(oauthIngressProxy);
+// Optional classic Alexa skill (classical-alexa/); off unless CLASSIC_ALEXA_ENABLED=true. Mounted before the JSON parser so the signed raw body is verified.
+if(process.env.CLASSIC_ALEXA_ENABLED==='true'){const {classicAlexaRouter}=await import('../classical-alexa/skill-handler.js');app.use('/alexa',classicAlexaRouter({runAgent,skillId:process.env.CLASSIC_ALEXA_SKILL_ID,skipVerification:process.env.CLASSIC_ALEXA_SKIP_VERIFY==='true'}));}
+app.use('/store/api/photos',express.json({limit:'9mb'}));app.use(express.json({limit:'32kb'}));
 // Explicit public origin supports TLS termination without trusting arbitrary forwarding headers.
 const publicWebOrigin=process.env.PUBLIC_WEB_ORIGIN?new URL(process.env.PUBLIC_WEB_ORIGIN).origin:undefined;
 // Same-origin mutations, including microphone uploads. No cross-origin app control.

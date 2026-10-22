@@ -1,5 +1,5 @@
 import {withModelAudit} from './model-audit.js';
-import {inventoryQuestion,stockAnswer} from './inventory-query.js';
+import {asksAboutStock,inventoryQuestion,stockAnswer} from './inventory-query.js';
 import {completionUrl,completionHeaders} from '../server/ai-services.js';
 import type {DemoRole} from './demo-role.js';
 import {narrowRestock,invokesStoreYog,asksCurrentInventory} from './restock-intents.js';
@@ -47,7 +47,7 @@ export async function runAgent(session:Session,text:string,scripted:boolean,emit
    session.pending=null;session.deferredItems=previousDraft!.filter(i=>!selection.some(s=>s.item===i.item)).map(i=>i.item);
    const draft=await call('place_reorder',{items:selection,confirmed:false});const names=selection.map(i=>i.item).join(' and ');reply=`Understood. ${session.deferredItems.length?"I'll leave "+session.deferredItems.join(' and ')+" out. ":''}${selection.map(i=>`${i.qty} bags of ${i.item}`).join(' and ')} would be about $${Math.round(draft.estimatedCost)}. Shall I order just ${names} from Amazon Business?`;
   }
-  else if(/\b(?:how\s+(?:much|many)|available|availability|in stock|do\s+(?:you|we)\s+have|check my)\b/i.test(text)&&! /\b(?:set|update|change|receive|add|remove|deduct|order|reorder|restock|email|send|report|reconcile)\b/i.test(text)){
+  else if(asksAboutStock(text)){
    session.pending=null;const inventory=await call('get_inventory');const matches=inventoryQuestion(text,inventory.items);
    if(matches===null)reply='Please name the product you want to check, such as rice or dal.';
    else{const filter=matches.length===1?matches[0].item:matches[0]?.item.split(/\s+/).find((word:string)=>matches.every((item:any)=>item.item.toLowerCase().split(/\s+/).includes(word.toLowerCase())));const result=filter?await call('get_inventory',{item:filter}):{...inventory,items:matches};reply=stockAnswer(result.items,!!inventory.reconciledOn);}
@@ -113,7 +113,7 @@ async function localLoop(session:Session,text:string,tools:Tool[],call:(name:str
   const sales=seen.get('get_todays_transactions'),rec=seen.get('reconcile_inventory'),inventory=seen.get('get_inventory'),draft=seen.get('place_reorder');const parts:string[]=[];
   if(sales)parts.push(`You made $${Math.round(sales.totalRevenue).toLocaleString('en-US')} across ${sales.transactionCount} transactions today, ${sales.changePercent} percent above your recent average.`);
   if(rec?.lowItems?.length)parts.push(rec.lowItems.map((i:any)=>`${i.item} is at ${i.percentRemaining} percent`).join(' and ')+'.');
-  else if(inventory){const match=inventory.items.find((i:any)=>text.toLowerCase().includes(i.item.toLowerCase()));if(match)parts.push(`${match.item} has ${match.stock} ${match.unit}s in stock, ${match.percentRemaining} percent of full stock.`);else parts.push(`There are ${inventory.items.length} grocery essentials in your inventory. ${inventory.reconciledOn?'Today’s sales have been reconciled.':'These are today’s opening stock levels.'}`);}
+  else if(inventory){const match=inventory.items.find((i:any)=>text.toLowerCase().includes(i.item.toLowerCase()));if(match)parts.push(stockAnswer([match],!!inventory.reconciledOn));else parts.push(`There are ${inventory.items.length} grocery essentials in your inventory. ${inventory.reconciledOn?'Today’s sales have been reconciled.':'These are today’s opening stock levels.'}`);}
   if(draft)parts.push(`The restock draft is about $${Math.round(draft.estimatedCost)}.`);
   return parts.join(' ')||'I can check your inventory, review today’s sales, or prepare a restock. What would you like to check?';
  };
@@ -125,7 +125,7 @@ async function localLoop(session:Session,text:string,tools:Tool[],call:(name:str
   try{const request={model:config.llmModel,messages,max_tokens:700,temperature:0.1,stream:false};const body=await withModelAudit(session.id,'chat-completions',config.llmModel,request,async()=>{const r=await labFetch(completionUrl(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request),signal:AbortSignal.timeout(45_000)});const raw=await r.text();let data:any;try{data=JSON.parse(raw);}catch{const error=new Error('Model returned invalid JSON');(error as any).auditResponse={httpStatus:r.status,body:raw};throw error;}if(!r.ok){const error=new Error(`Model returned HTTP ${r.status}`);(error as any).auditResponse=data;throw error;}return data;});content=body.choices?.[0]?.message?.content||'';}
   catch(error){if(seen.size)return fallback();throw error;}
   const cleaned=content.replace(/<think>[\s\S]*?<\/think>/g,'').replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'').trim();let action:any;
-  try{action=JSON.parse(cleaned);}catch{const start=cleaned.indexOf('{'),end=cleaned.lastIndexOf('}');try{action=JSON.parse(cleaned.slice(start,end+1));}catch{if(seen.size)return fallback();messages.push({role:'assistant',content},{role:'user',content:'Return exactly one JSON object with either a reply string or calls array.'});continue;}}
+  try{action=JSON.parse(cleaned);}catch{const start=cleaned.indexOf('{'),end=cleaned.lastIndexOf('}');try{action=parseLoose(cleaned.slice(start,end+1));}catch{if(seen.size)return fallback();messages.push({role:'assistant',content},{role:'user',content:'Return exactly one JSON object with either a reply string or calls array.'});continue;}}
   if(typeof action.reply==='string'&&action.reply.trim())return action.reply;
   if(seen.size)return fallback();
   const calls=Array.isArray(action.calls)?action.calls:action.name?[{name:action.name,args:action.args||action.arguments||{}}]:[];
@@ -135,4 +135,6 @@ async function localLoop(session:Session,text:string,tools:Tool[],call:(name:str
  }
  return fallback();
 }
+// Small models often drop the closing bracket of a calls array: {"calls":[{...},{...}}
+function parseLoose(json:string){for(const candidate of [json,json.replace(/\}\s*$/,']}'),json+']}'])try{return JSON.parse(candidate);}catch{}throw new Error('Unparseable model JSON');}
 function compact(data:any){const {lineItems,...rest}=data;return rest;}
