@@ -20,6 +20,7 @@ DESCRIPTION = ('Three ways to turn a small-store owner\'s spoken request into MC
                'and native tool calling (48.9%), behind one responsible-AI prompt guard (F1 99.67).')
 KEYWORDS = ('Model Context Protocol, tool calling, function calling, small language models, in-context learning, intelligent router, '
             'small business, voice assistant, OPT-350M, Gemma, responsible AI, prompt guard')
+VIDEO_ID = 'plRlsZMPN7E'
 LINKS = [('Code and data', 'https://github.com/dlyog/StoreYog'), ('Model', 'https://huggingface.co/dlyog/storeyog-opt-350m-mcp-tools'),
          ('Research film', 'https://youtu.be/plRlsZMPN7E'), ('Live demo', 'https://storeyog.dlyog.com')]
 
@@ -35,6 +36,8 @@ def inline(text):
         s = html.escape(part, quote=False)
         s = re.sub(r'\[([^\]]+)\]\((https?://[^)\s]+)\)', r'<a href="\2" target="_blank" rel="noopener">\1</a>', s)
         s = re.sub(r'(?<!href=")(?<!">)(https?://[^\s<)]+[^\s<).,;:])', r'<a href="\1" target="_blank" rel="noopener">\1</a>', s)
+        # Numbered citations link to their reference entry, as in the site's other papers.
+        s = re.sub(r'\[(\d{1,2})\](?!\()', r'<a href="#ref\1" class="cite">[\1]</a>', s)
         s = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
         s = re.sub(r'(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])', r'<em>\1</em>', s)
         out.append(s)
@@ -107,7 +110,7 @@ def main(template_path, out_path):
             abstract = render_blocks(text.strip().splitlines())
             continue
         if name == 'References':
-            refs = '\n'.join(f'<li id="ref{k}">{inline(r[2:].strip())}</li>' for k, r in enumerate([l for l in text.splitlines() if l.startswith('- ')], 1))
+            refs = '\n'.join(f'<li id="ref{k}">{inline(re.sub(r"^\d+\. ", "", r).strip())}</li>' for k, r in enumerate([l for l in text.splitlines() if re.match(r'^\d+\. ', l)], 1))
             continue
         appendix = name.startswith('Appendix')
         if not appendix:
@@ -137,6 +140,8 @@ def main(template_path, out_path):
   .paper-doc a{overflow-wrap:anywhere}.paper-appendix{margin-top:24px}.paper-appendix h2{font-family:'Space Grotesk',Helvetica,Arial,sans-serif}
   .paper-list{padding-left:22px}.paper-list li{margin:5px 0}.paper-code{font-family:Menlo,Consolas,monospace;font-size:.86em}
   .paper-refs li{margin:6px 0;font-size:.86rem;line-height:1.5}
+  .paper-video{margin:22px 0}.paper-video iframe{display:block;width:100%;aspect-ratio:16/9;border:1px solid #000;background:#000}.paper-video-caption{font-size:.84rem;text-align:center;margin:8px 0 0}
+  @media print{.paper-video iframe{display:none}.paper-video{margin:10px 0}}
   </style>'''
     page = f'''<!DOCTYPE html>
 <html lang="en">
@@ -186,6 +191,11 @@ def main(template_path, out_path):
       <div class="abstract-title">Abstract</div>
       {abstract}
       <p class="paper-keywords"><strong>Keywords —</strong> {html.escape(KEYWORDS)}</p>
+    </div>
+    <!-- Research film: plays on the web page; the printed PDF shows its link instead. -->
+    <div class="paper-video">
+      <iframe src="https://www.youtube-nocookie.com/embed/{VIDEO_ID}?rel=0" title="Research film: three ways to call MCP tools" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
+      <p class="paper-video-caption"><strong>Research film (3:39).</strong> The three modes answering the same questions, recorded live on the deployment: <a href="https://youtu.be/{VIDEO_ID}" target="_blank" rel="noopener">youtu.be/{VIDEO_ID}</a></p>
     </div>
     <hr class="paper-divider">
 
