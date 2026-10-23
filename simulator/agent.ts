@@ -42,6 +42,8 @@ export async function runAgent(session:Session,text:string,scripted:boolean,emit
   await client.connect(new StreamableHTTPClientTransport(new URL(config.mcpUrl),{requestInit:{headers:{Authorization:`Bearer ${config.mcpApiKey}`,'x-storeyog-conversation':session.id}}}));
   const {tools}=await client.listTools();
   let reply='';const previousDraft=session.pending;
+  // "Yes" to the assistant's own offer to draft a restock asks for that draft (a draft only, never approval of an order).
+  if(!previousDraft&&approved(text)&&/\b(?:draft a restock|prepare a reorder|draft a reorder)\b/i.test(session.history.at(-1)?.content||''))text='Draft a reorder for the low items.';
   // With a model configured, the model chooses the MCP tools (Alexa+ flow). The keyword routes below are the
   // credential-free judge mode, which still runs real MCP tools deterministically.
   const modelLed=!scripted&&(!!process.env.ANTHROPIC_API_KEY||config.simulatorLlmProtocol==='storeyog-small'||!!config.llmUrl);
