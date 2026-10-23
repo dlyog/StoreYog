@@ -7,8 +7,12 @@ import express from 'express';
 import multer from 'multer';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { config } from '../server/config.js';
+import { config,simulatorModes,defaultSimulatorMode,SIMULATOR_MODE_LABELS,type SimulatorMode } from '../server/config.js';
+import {runtimeDir} from '../server/credentials.js';
+import {appendFile} from 'node:fs/promises';
 import {runAgent,type Session} from './agent.js';
+import {GUIDES,GUIDE_DIR} from './guides.js';
+import {existsSync} from 'node:fs';
 const app=express();if(process.env.TRUST_PROXY)app.set('trust proxy',process.env.TRUST_PROXY);app.disable('x-powered-by');app.use(oauthIngressProxy);
 // Optional classic Alexa skill (classical-alexa/); off unless CLASSIC_ALEXA_ENABLED=true. Mounted before the JSON parser so the signed raw body is verified.
 if(process.env.CLASSIC_ALEXA_ENABLED==='true'){const {classicAlexaRouter}=await import('../classical-alexa/skill-handler.js');app.use('/alexa',classicAlexaRouter({runAgent,skillId:process.env.CLASSIC_ALEXA_SKILL_ID,skipVerification:process.env.CLASSIC_ALEXA_SKIP_VERIFY==='true'}));}
@@ -31,18 +35,21 @@ app.get('/api/status',async(_req,res)=>{
  const mcp=await probe(config.mcpUrl.replace(/\/mcp$/,'/health'));const stt=!!config.sttUrl,tts=!!config.ttsUrl,llm=!!config.llmUrl||config.simulatorLlmProtocol==='storeyog-small'; // Functional provider checks are performed by setup.py --live.
 
  let storeInfo:any={};try{const identity=await fetch(new URL('/client/identity',config.mcpUrl),{headers:{Authorization:`Bearer ${config.mcpApiKey}`},signal:AbortSignal.timeout(3000)});if(identity.ok)storeInfo=await identity.json();}catch{}
- res.json({mcp,stt,tts,llm,...storeInfo,authenticated:!!storeInfo.storeId,consoleUrl:process.env.MCP_CONSOLE_URL||new URL('/console/',config.mcpUrl).href,demoMode:process.env.DEMO_MODE!=='false',provider:process.env.DEMO_MODE!=='false'?'scripted':process.env.ANTHROPIC_API_KEY?'anthropic':'local',model:process.env.ANTHROPIC_API_KEY?config.claudeModel:config.llmModel,voice:config.ttsVoice,timezone:config.timezone});
+ res.json({mcp,stt,tts,llm,...storeInfo,modes:Object.keys(simulatorModes()).map(id=>({id,label:SIMULATOR_MODE_LABELS[id as SimulatorMode]})),defaultMode:defaultSimulatorMode(),authenticated:!!storeInfo.storeId,consoleUrl:process.env.MCP_CONSOLE_URL||new URL('/console/',config.mcpUrl).href,demoMode:process.env.DEMO_MODE!=='false',provider:process.env.DEMO_MODE!=='false'?'scripted':process.env.ANTHROPIC_API_KEY?'anthropic':'local',model:process.env.ANTHROPIC_API_KEY?config.claudeModel:config.llmModel,voice:config.ttsVoice,timezone:config.timezone});
 });
 app.get('/api/demo-audit',(_req,res)=>res.status(401).json({error:'Sign in at /store/admin to view audit records.'}));
 app.post('/api/chat',async(req,res)=>{
- const {message,scripted=false}=req.body||{};
+ const {message,scripted=false,mode}=req.body||{};
  if(typeof message!=='string'||!message.trim()||message.length>4000||typeof scripted!=='boolean')return res.status(400).json({error:'Send a message of 1–4000 characters and an optional scripted boolean.'});
  const s=session(req,res);if(s.busy)return res.status(409).json({error:'The assistant is still handling your last request.'});s.busy=true;
  res.set({'Content-Type':'application/x-ndjson','Cache-Control':'no-cache','X-Accel-Buffering':'no'});res.flushHeaders();
- const emit=(event:Record<string,unknown>)=>{if(!res.destroyed)res.write(JSON.stringify(event)+'\n');};
+ if(typeof mode==='string'&&mode in simulatorModes())s.mode=mode as SimulatorMode;
+ // Every turn is recorded for comparing the modes (scripts/compare-modes.ts). The file stays in the private runtime folder.
+ const run:Record<string,any>={at:new Date().toISOString(),conversation:s.id,mode:scripted||process.env.DEMO_MODE!=='false'?'scripted':s.mode||defaultSimulatorMode(),text:message.trim(),tools:[],media:[]};const started=performance.now();
+ const emit=(event:Record<string,any>)=>{if(event.type==='tool_result')run.tools.push({name:event.name,args:event.args,isError:event.isError,ms:event.ms});if(event.type==='route')run.route=event.route;if(event.type==='media')run.media.push(event.kind);if(event.type==='provider')run.model=event.model;if(event.type==='done')run.reply=event.reply;if(event.type==='error')run.error=event.error;if(!res.destroyed)res.write(JSON.stringify(event)+'\n');};
  try{await runAgent(s,message.trim(),scripted||process.env.DEMO_MODE!=='false',emit);}
  catch(error){console.error('Chat:',error instanceof Error?error.message:'failed');emit({type:'error',error:error instanceof Error?error.message:'The assistant could not finish. Please retry.'});}
- finally{s.busy=false;s.updatedAt=Date.now();res.end();}
+ finally{s.busy=false;s.updatedAt=Date.now();res.end();run.ms=Math.round(performance.now()-started);void appendFile(path.join(runtimeDir,'mode-runs.jsonl'),JSON.stringify(run)+'\n').catch(()=>{});}
 });
 // Separate synthetic demo conversation. PIN never grants access to registered business stores.
 app.post('/api/demo-conversation',async(req,res)=>{
@@ -73,7 +80,11 @@ app.post('/api/tts',async(req,res)=>{
  const text=req.body?.text;if(typeof text!=='string'||!text.trim()||text.length>3000)return res.status(400).json({error:'Provide 1–3000 characters of text.'});
  try{const output=await synthesize(text);res.type(output.type).set('Cache-Control','no-store').send(output.data);}catch(e){res.status(502).json({error:`Voice playback unavailable: ${e instanceof Error?e.message:'unknown error'}. The reply is shown on screen.`});}
 });
-app.get('/api/acknowledgement',async(_req,res)=>{try{const output=await synthesize('Let me check the details.');res.type(output.type).set('Cache-Control','no-store').send(output.data);}catch{res.status(503).json({error:'Optional speech is not configured. Replies are shown as text.'});}});
+// Short spoken acknowledgements while the store is checked. The browser plays them in a shuffled order that
+// cycles through the whole list in each session, so the assistant does not repeat one phrase every turn.
+export const ACKNOWLEDGEMENTS=['Let me check the details.','Okay, sure, checking.','Yes, for sure. One moment.','Sure, let me look that up.','Got it, checking now.','On it.','Alright, give me a second.','Sure thing. Checking your store.','Okay, one moment please.','Let me find that for you.','Good question. Let me see.','Right away.'];
+app.get('/api/acknowledgements',(_req,res)=>res.set('Cache-Control','no-cache').json({phrases:ACKNOWLEDGEMENTS}));
+app.get('/api/acknowledgement',async(req,res)=>{const i=Math.min(ACKNOWLEDGEMENTS.length-1,Math.max(0,Number.parseInt(String(req.query.i??'0'),10)||0));try{const output=await synthesize(ACKNOWLEDGEMENTS[i]);res.type(output.type).set('Cache-Control','private, max-age=3600').send(output.data);}catch{res.status(503).json({error:'Optional speech is not configured.'});}});
 const simulatorDir=path.dirname(fileURLToPath(import.meta.url));
 const projectRoot=path.resolve(simulatorDir,'..');
 app.get('/api/judge',async(req,res)=>{
@@ -95,6 +106,16 @@ app.use('/landing',express.static(path.join(simulatorDir,'landing')));
 // Videos remain hosted; no generated audio/video or private recording assets ship here.
 const resources:Record<string,string>={readme:'README.md','alexa-deploy':'docs/ARCHITECTURE.md',verification:'docs/TESTING.md','demo-guide':'docs/JUDGE_GUIDE.md'};
 app.get('/resources/:name',(req,res)=>{const file=resources[String(req.params.name)];if(!file)return res.status(404).end();res.type('text/plain').sendFile(path.join(projectRoot,file));});
+// Simulator media: the demo film when a local copy exists (the browser otherwise plays it from YouTube) and the
+// audio guides once generated (classical-alexa/audio-guides/generate.py).
+const demoFilms=['docs/pitch-v8/storeyog-echo-live-1.15x.mp4','docs/pitch-v7/storeyog-live-normal.mp4'];
+app.get('/media/demo.mp4',(_req,res)=>{const film=demoFilms.map(f=>path.join(projectRoot,f)).find(f=>existsSync(f));if(!film)return res.status(404).end();res.sendFile(film,{headers:{'Cache-Control':'public, max-age=3600'}});});
+// Optional background music while the assistant checks the store (simulator settings); ignored by Git, synced on deploy.
+app.get('/media/wait-music.mp3',(_req,res)=>{const file=path.join(projectRoot,'background-music','North_of_Midnight.mp3');if(!existsSync(file))return res.status(404).end();res.sendFile(file,{headers:{'Cache-Control':'public, max-age=86400'}});});
+app.get('/media/guide/:id.mp3',(req,res)=>{const id=String(req.params.id);if(!GUIDES.some(g=>g.id===id))return res.status(404).end();res.sendFile(path.join(GUIDE_DIR,id+'.mp3'),{headers:{'Cache-Control':'public, max-age=86400'}},error=>{if(error&&!res.headersSent)res.status(404).end();});});
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)),'public')));
 app.use((error:Error,_req:express.Request,res:express.Response,_next:express.NextFunction)=>{res.status(400).json({error:error.message});});
-app.listen(config.webPort,process.env.APP_BIND||'127.0.0.1',()=>console.log(`StoreYog judge landing http://localhost:${config.webPort}/\nEcho Simulator http://localhost:${config.webPort}/simulator`));
+const server=app.listen(config.webPort,process.env.APP_BIND||'127.0.0.1',()=>console.log(`StoreYog judge landing http://localhost:${config.webPort}/\nEcho Simulator http://localhost:${config.webPort}/simulator`));
+// Keep idle connections open longer than a reverse proxy does, so it never reuses a socket Node has just closed
+// (which the proxy reports as 503). Node's default is 5 s.
+server.keepAliveTimeout=65_000;server.headersTimeout=66_000;

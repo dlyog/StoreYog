@@ -16,11 +16,23 @@ One line per step (`simulator/small-model.ts`, shared by training and the app):
 ### Answer: Jaggery is in Aisle 1, oil shelf, upper right. There are 20 blocks in stock.
 ```
 
-The catalog line lets products added later work without retraining. Order approval stays in server code: the model can only draft (`confirmed:false`); the owner's next explicit "yes" confirms. If the model states a number before any tool ran, the server re-asks with the line forced to start as a tool call.
+The catalog line lets products added later work without retraining.
+
+Besides the seven MCP tools, the model calls three **simulator tools** that the web app runs itself (`simulator/agent.ts`), matching what the classic Echo Show skill offers:
+
+| Call | What the app does |
+| --- | --- |
+| `play_demo {}` | Shows and plays the StoreYog demo film after the reply (falls back to YouTube) |
+| `play_guide {"topic":"inventory"\|"business"\|"food"}` | Plays one of the 33 original audio guides (`classical-alexa/audio-guides/`); "next tip" continues the set |
+| `ask_general {}` | Sends the owner's question to the general LLM (Gemma); its answer is spoken as the reply |
+
+Shelf photos need no extra tool: when `get_inventory` returns one product with a published photo, the screen shows it with the owner's arrow. Writes are guarded in the app: `update_inventory` runs only when the owner's words ask for a count change with a number, and `place_reorder` only when they ask to order or restock (or narrow a draft the assistant just offered). Order approval stays in server code: the model can only draft (`confirmed:false`); the owner's next explicit "yes" confirms. If the model states a number before any tool ran, the server re-asks with the line forced to start as a tool call.
 
 ## Data
 
 `build-dataset.ts` runs the real MCP server in-process against a throwaway copy of the synthetic Little India Grocery database, so every tool result is genuine. Report emails are never sent (their results are written in). It covers where-is, counts, availability, prices, follow-ups, products not carried, sales, store health, alerts, restock drafts (all or only named items), declines, explicit orders, count updates (reconciling first when needed), reports and no-tool chat, with spoken variation (wake words, fillers, lowercase speech-to-text, "dahl"/"daal", Hindi grocery names). About half the examples carry earlier unrelated turns. Four products are held out of training to measure generalisation.
+
+From v6, 85% of the examples run on their own randomised store (stock counts, selling prices, unit costs and shelf locations reshuffled), so copying numbers from the tool result is the only way to be right; v5 had memorised the demo store's numbers. v6 also adds shelf-photo requests, the product list, the demo film, audio guides, general questions and reactions such as "Oh great." that must not call any tool.
 
 ```sh
 sqlite3 .runtime/storeyog.sqlite ".backup '/tmp/train.sqlite'"
@@ -33,9 +45,9 @@ node --import tsx training/tool-model/to-text.ts /tmp/storeyog-data
 ## Train, evaluate, serve (on the GPU host)
 
 ```sh
-python train_small.py --data data --out runs/opt350m-v5 --epochs 3
-python eval_small.py --model runs/opt350m-v5/final --data data --limit 600
-python serve_small.py --model runs/opt350m-v5/final --port 9010
+python train_small.py --data data --out runs/opt350m-v6 --epochs 3
+python eval_small.py --model runs/opt350m-v6/final --data data --limit 600
+python serve_small.py --model runs/opt350m-v6/final --port 9010
 ```
 
 App configuration (`.env`):

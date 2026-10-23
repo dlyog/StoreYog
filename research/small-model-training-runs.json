@@ -1,0 +1,35 @@
+{
+ "base": "facebook/opt-350m",
+ "recipe": "TRL SFT, lr 5e-5, 100 warmup steps, effective batch 32 (8 x 4), max_grad_norm 0.3, weight decay 0.01, bf16, gradient checkpointing (arXiv 2512.15943)",
+ "hardware": "NVIDIA DGX Spark (GB10)",
+ "runs": {
+  "v3": {
+   "train_conversations": 12417,
+   "train_runtime_s": 1054,
+   "train_loss": 0.8501,
+   "eval_loss": 0.6213,
+   "notes": "1 epoch, catalog line"
+  },
+  "v4": {
+   "train_conversations": 13310,
+   "train_runtime_s": 1593,
+   "train_loss": 0.6014,
+   "eval_loss": 0.5105,
+   "notes": "3 epochs, unrelated earlier turns"
+  },
+  "v5": {
+   "train_conversations": 14817,
+   "train_runtime_s": 1783,
+   "train_loss": 0.6004,
+   "eval_loss": 0.5154,
+   "notes": "3 epochs, not-carried, single-item restock, decline"
+  },
+  "v6": {
+   "train_conversations": 19408,
+   "train_runtime_s": 2565,
+   "train_loss": 0.633,
+   "eval_loss": 0.5427,
+   "notes": "3 epochs, randomised stock/prices/locations per example, simulator tools (demo, guides, general), reactions"
+  }
+ }
+}

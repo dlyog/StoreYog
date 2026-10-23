@@ -53,3 +53,14 @@ body.customer-persona .mobile-dock{display:none}body.customer-persona{padding-bo
 body.presentation-mode .mobile-dock{display:none}
 #preview-notice-reopen{top:10px;bottom:auto!important;right:60px!important}body.customer-persona #preview-notice-reopen{top:auto}
 }
+
+/* Media on the device screen: shelf photo with arrow, demo video, audio guide */
+.media{flex:none;margin-bottom:10px}.media-card{display:flex;flex-direction:column;gap:8px}.media-card p{color:#b9c8dc;font-size:12px}
+.media .shelf-photo{position:relative;align-self:flex-start;max-width:100%}.media .shelf-photo img{display:block;max-width:100%;max-height:min(34vh,300px);border-radius:8px}
+.media .shelf-marker{position:absolute;transform:translate(-50%,-100%);color:#ffd84a;font-size:34px;font-weight:800;text-shadow:0 2px 6px #000a;animation:shelf-bounce 1.2s ease-in-out infinite}
+@keyframes shelf-bounce{50%{transform:translate(-50%,-115%)}}
+.media video,.media iframe{width:100%;max-height:min(40vh,360px);aspect-ratio:16/9;border:0;border-radius:8px;background:#000}.media audio{width:100%}
+
+/* Assistant mode selector */
+.mode-shell .mode-label{color:#8faacb;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-right:6px}.settings-mode{display:flex;gap:10px;align-items:center;margin-top:12px}.settings-mode select{background:#1d2838;color:inherit;border:1px solid #354154;border-radius:6px;padding:6px 8px}
+#research-dialog{max-width:520px}#research-dialog p{margin:0 0 12px;line-height:1.5}.research-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}.research-actions .primary{background:var(--blue);color:#fff;border-radius:8px;padding:9px 16px;font-weight:700}.research-actions .subtle{border-radius:8px;padding:9px 16px}

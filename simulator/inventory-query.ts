@@ -2,6 +2,9 @@
 type StockItem={item:string;stock:number;unit:string};
 // Speech-to-text spellings (Alexa often writes "dahl") and common Hindi names map to catalog words.
 const SPOKEN:[RegExp,string][]=[[/lentils?/g,'dal'],[/\b(?:dahl|daal|dhal|dhall|dall)\b/g,'dal'],[/\bchann?a\b/g,'chana'],[/\bjeera\b/g,'cumin'],[/\bhaldi\b/g,'turmeric'],[/\bchai\b/g,'tea'],[/\bata\b/g,'atta'],[/\bpanir\b/g,'paneer'],[/\bmung\b/g,'moong'],[/\b(?:curd|yogh?urt)\b/g,'dahi'],[/\bchill?ies\b/g,'chilies'],[/\bchill?i\b/g,'chili'],[/\bchick\s?peas?\b/g,'kabuli chana'],[/\bsuji\b/g,'sooji'],[/\bgur\b/g,'jaggery'],[/\b(?:dhaniya|coriander leaves)\b/g,'cilantro']];
+// Speech-to-text mishearings of product names seen in owner sessions ("doll", "Turdal", "otta"), corrected in the
+// owner's own words before any mode reads them; case and the rest of the sentence are kept.
+export const fixMishearings=(text:string)=>text.replace(/\b(?:dull|doll|dhal|dahl|daal|dall)\b/gi,'dal').replace(/\b(?:turdal|tur\s+dal|toor\s*dal)\b/gi,'toor dal').replace(/\b(?:otta|ata)\b/gi,'atta');
 export const normalizeSpoken=(text:string)=>SPOKEN.reduce((t,[pattern,word])=>t.replace(pattern,word),text.toLowerCase());
 const words=(text:string):string[]=>normalizeSpoken(text).match(/[a-z0-9]+/g)||[];
 const ignored=new Set('alexa how much many do does we you i have got is are there any available availability stock inventory check show tell me my the a an of in on for please current currently bags bag bottles bottle boxes box packs pack pieces piece kilograms kilogram kg litres liters litre liter left remaining look like looks can could what about today no yes ok okay just again got some need'.split(' '));

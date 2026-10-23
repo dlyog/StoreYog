@@ -30,6 +30,7 @@ export class SqlDatabase{
    CREATE TABLE IF NOT EXISTS security_events(id INTEGER PRIMARY KEY AUTOINCREMENT,event TEXT NOT NULL,created_at TEXT NOT NULL);
   `);
   if(!this.connection.prepare('PRAGMA table_info(mcp_calls)').all().some((r:any)=>r.name==='conversation_id'))this.connection.exec('ALTER TABLE mcp_calls ADD COLUMN conversation_id TEXT');
+  if(!this.connection.prepare('PRAGMA table_info(mcp_calls)').all().some((r:any)=>r.name==='mode'))this.connection.exec('ALTER TABLE mcp_calls ADD COLUMN mode TEXT');
   if(!this.connection.prepare('PRAGMA table_info(transactions)').all().some((r:any)=>r.name==='receipt_id'))this.connection.exec('ALTER TABLE transactions ADD COLUMN receipt_id TEXT');
  }
  query<T=Record<string,any>>(sql:string,params:unknown[]=[]):T[]{return this.execute(sql,params,true) as T[];}

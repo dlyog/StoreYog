@@ -11,15 +11,15 @@ import sharp from 'sharp';
 import type {Session} from '../simulator/agent.js';
 import {asksAboutStock,normalizeSpoken} from '../simulator/inventory-query.js';
 import {catalogQuestion} from '../server/catalog-query.js';
-import {withModelAudit} from '../simulator/model-audit.js';
 import {config} from '../server/config.js';
-import {labFetch} from '../server/lab-http.js';
-import {completionUrl,completionHeaders} from '../server/ai-services.js';
-import {readFileSync} from 'node:fs';
+import {generalAnswer} from '../simulator/general.js';
+import {guard,BLOCKED_REPLY} from '../simulator/prompt-guard.js';
+import {auditMode} from '../simulator/model-audit.js';
+import {GUIDES,GUIDE_DIR,NUTRITION,PRODUCT,pickGuide,type Guide} from '../simulator/guides.js';
 import {SUGGESTIONS,supportsApl,welcomeScreen,answerScreen,shelfScreen,videoScreen,guideScreen} from './apl.js';
 
 type Emit=(event:Record<string,any>)=>void;
-type RunAgent=(session:Session,text:string,scripted:boolean,emit:Emit)=>Promise<unknown>;
+type RunAgent=(session:Session,text:string,scripted:boolean,emit:Emit,flow:'classic')=>Promise<unknown>;
 type Options={runAgent:RunAgent;skillId?:string;skipVerification?:boolean;replyTimeoutMs?:number};
 
 const LAUNCH_TEXT='Alexa, open StoreYog';
@@ -33,31 +33,14 @@ const WELCOME_ART=fileURLToPath(new URL('../simulator/landing/assets/store-owner
 const WANTS_VIDEO=/\b(?:play|show|watch|start|open)\b.*\b(?:demo|video|film|pitch)\b/i;
 const WANTS_PLACE=/\b(?:where|which\s+(?:aisle|shelf)|find|locate)\b/i;
 const WANTS_IMAGE=/\b(?:show|see|display|view)\b.*\b(?:image|photo|picture|pic|shelf|it|that|this|them)\b|\b(?:image|photo|picture)\s+of\b/i;
-// Catalog words (after normalizing spoken spellings) mark a store question unless it is clearly a general one.
-const PRODUCT=/\b(?:rice|basmati|dal|toor|chana|moong|masoor|urad|rajma|kabuli|atta|besan|sooji|poha|jaggery|ghee|ginger|oil|coconut|mustard|onions?|potatoes?|tomatoes?|chilies|chili|cilantro|paneer|dahi|milk|parathas?|samosas?|wrappers?|pickle|papad|tea|turmeric|cumin|coriander|cardamom|masala)\b/i;
+// Catalog words (simulator/guides.ts PRODUCT, after normalizing spoken spellings) mark a store question unless it is clearly a general one.
 const GENERAL_HINT=/\b(?:cook|recipe|dish|make\s+with|fact|healthy|health|benefits?|nutrition|calories|history|origin|joke|weather|capital|why|who)\b/i;
 const lastProduct=new Map<string,string>();
 
-// Original audio guides (audio-guides/): inventory, small business, and food/nutrition for the store's items.
-type Guide={id:string;category:string;title:string;keywords:string[]};
-const GUIDES:Guide[]=JSON.parse(readFileSync(fileURLToPath(new URL('./audio-guides/guides.json',import.meta.url)),'utf8')).guides;
-const GUIDE_DIR=fileURLToPath(new URL('./audio-guides/audio/',import.meta.url));
+// Original audio guides (simulator/guides.ts): inventory, small business, and food/nutrition for the store's items.
 const lastGuide=new Map<string,string>();
 const WANTS_GUIDE_LIST=/\b(?:what|which|list)\b.*\b(?:guides?|tips|audio)\b/i;
 const WANTS_GUIDE=/\b(?:play|listen|hear|give\s+me|tell\s+me|another|next)\b.*\b(?:tips?|guides?|guidance|advice|lessons?|audio|episodes?)\b|\bnext\s+(?:one|tip|guide)\b|\banother\s+one\b|\bguide\s+(?:number\s+)?\d+\b/i;
-const NUTRITION=/\b(?:protein|carbs?|carbohydrates?|fib(?:er|re)|fats?|calories|nutrition(?:al)?|nutrients?|healthy|healthier|health|benefits?|vitamins?|iron|calcium|diet)\b/i;
-const NUMBER_WORDS:Record<string,number>={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30};
-function categoryOf(text:string){if(NUTRITION.test(text)||/\b(?:food|nutrition|eat|eating)\b/i.test(text))return 'food';if(/\b(?:business|grow|growth|cash|marketing|customers?|pricing|price|margin|staff|hiring|suppliers?)\b/i.test(text))return 'business';if(/\b(?:inventory|stock|reorder|shelf|shelves|counting|expiry)\b/i.test(text))return 'inventory';return '';}
-// Picks a guide: an explicit number, "next" in the same set, the best keyword match, or the first in a set.
-function pickGuide(text:string,alexaSession:string):Guide|undefined{
- const t=normalizeSpoken(text),num=/\bguide\s+(?:number\s+)?(\d+|[a-z]+(?:[\s-][a-z]+)?)\b/.exec(t)?.[1];
- if(num){const n=/^\d+$/.test(num)?Number(num):num.split(/[\s-]/).reduce((sum,w)=>sum+(NUMBER_WORDS[w]||0),0);const g=GUIDES.find(x=>Number(x.id)===n);if(g)return g;}
- const category=categoryOf(t),last=GUIDES.find(g=>g.id===lastGuide.get(alexaSession));
- if(/\b(?:next|another)\b/.test(t)&&last){const pool=GUIDES.filter(g=>g.category===(category||last.category));return pool[(pool.indexOf(last)+1)%pool.length]||pool[0];}
- const scored=GUIDES.filter(g=>!category||g.category===category).map(g=>({g,score:g.keywords.reduce((sum,k)=>sum+(new RegExp('\\b'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b').test(t)?(k.includes(' ')?2:PRODUCT.test(k)?3:1):0),0)})).sort((a,b)=>b.score-a.score);
- if(scored[0]?.score)return scored[0].g;
- return category?GUIDES.find(g=>g.category===category&&g.id!==last?.id):undefined;
-}
 const escapeSsml=(text:string)=>text.replace(/&/g,'and').replace(/[<>"]/g,'');
 // Plays a guide inside the conversation (SSML audio, under the 240 s limit), then invites the next request.
 function playGuide(guide:Guide,alexaSession:string,screen:boolean){
@@ -118,24 +101,13 @@ async function shelfFor(text:string){
  catch{return null;}
 }
 
-// General questions: the same LLM, a general-assistant prompt, recorded in the store's model audit.
-async function generalAnswer(s:Session,text:string){
- const request={model:config.llmModel,max_tokens:220,temperature:0.4,stream:false,messages:[
-  {role:'system',content:'You are a friendly voice assistant on an Echo Show in Little India Grocery, a small store. Answer helpfully in one to three short spoken sentences, without markdown or lists. Never state this store\'s stock counts, sales, prices or orders; for those, invite the user to ask about the product or the day, and the store records will be checked.'},
-  ...s.history.slice(-6),{role:'user',content:text}]};
- const body=await withModelAudit(s.id,'chat-completions',config.llmModel,request,async()=>{const r=await labFetch(completionUrl(),{method:'POST',headers:completionHeaders(),body:JSON.stringify(request),signal:AbortSignal.timeout(6000)});const data=await r.json() as any;if(!r.ok)throw Object.assign(new Error(`Model returned HTTP ${r.status}`),{auditResponse:data});return data;}) as any;
- const reply=String(body?.choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/g,'').replace(/[*#_`]/g,'').trim();
- if(reply){s.history.push({role:'user',content:text},{role:'assistant',content:reply});s.history=s.history.slice(-12);}
- return reply||'Sorry, I could not answer that right now.';
-}
-
 function sessionFor(id:string){let s=sessions.get(id);if(!s){s={id:'alexa-'+crypto.randomUUID(),updatedAt:Date.now(),busy:false,history:[],pending:null};sessions.set(id,s);}s.updatedAt=Date.now();return s;}
 
 // Runs one turn through the simulator's agent and returns its final spoken reply.
 async function ask(run:RunAgent,s:Session,text:string,timeoutMs:number){
  if(s.busy)return 'I am still working on your last request. Ask me again in a moment.';
  s.busy=true;let reply='',error='';
- const turn=run(s,text,false,event=>{if(event.type==='done')reply=String(event.reply||'');if(event.type==='error')error=String(event.error||'');})
+ const turn=run(s,text,false,event=>{if(event.type==='done')reply=String(event.reply||'');if(event.type==='error')error=String(event.error||'');},'classic')
   .catch(e=>{error=e instanceof Error?e.message:'failed';}).finally(()=>{s.busy=false;s.updatedAt=Date.now();});
  const timedOut=await Promise.race([turn.then(()=>false),new Promise<boolean>(r=>setTimeout(()=>r(true),timeoutMs))]);
  if(timedOut)return 'That is taking a little longer. Ask me again in a moment.';
@@ -180,14 +152,14 @@ export function classicAlexaRouter(options:Options){
    const said=text.slice(0,1000),plain=normalizeSpoken(said),video=interfaces.includes('VideoApp');
    if(WANTS_VIDEO.test(said))return res.json(video?launchVideo():screen?playVideo('Here is the StoreYog demo.'):speak('The demo video needs a screen. You can watch it at storeyog dot dlyog dot com. What else can I help with?'));
    if(WANTS_GUIDE_LIST.test(said)&&!s.pending){const count=(c:string)=>GUIDES.filter(g=>g.category===c).length;const reply=`I have ${GUIDES.length} short audio guides: ${count('inventory')} on inventory management, ${count('business')} on running a successful small business, and ${count('food')} on food and nutrition for our products. Say play an inventory tip, play a business tip, or ask something like is paneer high in protein.`;return res.json(speak(reply,false,screen?answerScreen(said,reply):undefined));}
-   if((WANTS_GUIDE.test(said)||(NUTRITION.test(plain)&&!/\b(?:how\s+(?:much|many)|in\s+stock|available|where)\b/i.test(said)))&&!s.pending){const guide=pickGuide(said,alexaSession);if(guide)return res.json(playGuide(guide,alexaSession,screen));}
+   if((WANTS_GUIDE.test(said)||(NUTRITION.test(plain)&&!/\b(?:how\s+(?:much|many)|in\s+stock|available|where)\b/i.test(said)))&&!s.pending){const guide=pickGuide(said,lastGuide.get(alexaSession));if(guide)return res.json(playGuide(guide,alexaSession,screen));}
    const named=PRODUCT.exec(plain)?.[0];
    // "Show me the image of that": the product named now, or the last one discussed.
    if(catalogQuestion(said)!==null&&!s.pending){const shelf=await shelfFor(said);if(shelf?.summary){const reply=shelf.summary;return res.json(speak(reply,false,screen?answerScreen(said,reply):undefined));}}
    if(WANTS_IMAGE.test(said)&&!s.pending){const product=named?plain:lastProduct.get(alexaSession);if(product){const shelf=await shelfFor(product);if(shelf?.count){const reply=shelf.item?`Here is the ${shelf.item.name} shelf. ${shelf.summary.replace(/\.{2,}/g,'.')}`:shelf.summary;if(shelf.item)lastProduct.set(alexaSession,shelf.item.name);return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}}
    if(WANTS_PLACE.test(said)&&!s.pending){const shelf=await shelfFor(said);if(shelf?.count){const reply=shelf.summary.replace(/\.{2,}/g,'.');if(shelf.item)lastProduct.set(alexaSession,shelf.item.name);return res.json(speak(reply,false,screen?(shelf.item?shelfScreen(shelf.item,reply,origin()):answerScreen(said,reply)):undefined));}}
    const storeTurn=!!s.pending||STORE_TOPIC.test(said)||asksAboutStock(plain)||(!!named&&!GENERAL_HINT.test(said));
-   if(!storeTurn){const reply=await generalAnswer(s,said).catch(()=>'Sorry, I could not answer that right now.');return res.json(speak(reply,false,screen?answerScreen(said,reply):undefined));}
+   if(!storeTurn){const reply=await auditMode.run('classic',async()=>await guard(s,said,'user')==='unsafe'?BLOCKED_REPLY:await generalAnswer(s,said).then(async r=>await guard(s,r,'assistant')==='unsafe'?BLOCKED_REPLY:r).catch(()=>'Sorry, I could not answer that right now.'));return res.json(speak(reply,false,screen?answerScreen(said,reply):undefined));}
    // A bare product name ("toor dahl") is a stock question about that product.
    const bare=!s.pending&&!STORE_TOPIC.test(said)&&!asksAboutStock(plain)&&!!named;
    const reply=await ask(options.runAgent,s,bare?`how much ${said} is available`:said,timeout);

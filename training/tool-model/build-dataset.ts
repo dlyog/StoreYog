@@ -1,4 +1,4 @@
-// Builds the StoreYog tool-calling fine-tuning set for Gemma 4 E2B.
+// Builds the fine-tuning set for the StoreYog small tool-calling model (training/tool-model/README.md).
 // Every tool result is produced by the real MCP server running in-process against a throwaway copy of
 // the synthetic Little India Grocery database. Report emails are never sent: their results are written in.
 // Output: OpenAI-style {tools, messages} conversations, rendered on the training host with Gemma's chat template.
@@ -13,6 +13,7 @@ import {createServer} from '../../server/tools.js';
 import {Store,storeDate} from '../../server/store.js';
 import {getDatabase} from '../../server/database.js';
 import {SYSTEM,TOOL_RULES,compact} from '../../simulator/agent.js';
+import {pickGuide} from '../../simulator/guides.js';
 
 if(!process.env.DATABASE_PATH||/\.runtime/.test(process.env.DATABASE_PATH))throw new Error('Set DATABASE_PATH to a throwaway copy of the database, never the live .runtime file.');
 const out=process.argv[2]||'training/tool-model/out';mkdirSync(out,{recursive:true});
@@ -56,6 +57,8 @@ class Turn{
  messages:Msg[]=[];results:Record<string,any>={};
  constructor(public text:string,history:[string,string][]=[],exact=false){this.messages.push({role:'system',content:SYSTEM_PROMPT});for(const [q,a] of history)this.messages.push({role:'user',content:q},{role:'assistant',content:a});this.messages.push({role:'user',content:exact?text:vary(text)});}
  async call(name:string,args:Record<string,any>={}){const result=await run(name,args);this.messages.push({role:'assistant',tool_calls:[{type:'function',function:{name,arguments:args}}]},{role:'tool',name,content:JSON.stringify(result)});this.results[name]=result;return result;}
+ // Simulator tools (demo film, audio guides, general LLM) run in the app, not on the MCP server: their results are written in.
+ tool(name:string,args:Record<string,any>,result:Record<string,any>){this.messages.push({role:'assistant',tool_calls:[{type:'function',function:{name,arguments:args}}]},{role:'tool',name,content:JSON.stringify(result)});this.results[name]=result;return result;}
  answer(text:string){this.messages.push({role:'assistant',content:text});return {kind:'',tools,messages:this.messages};}
 }
 
@@ -96,7 +99,21 @@ const add=(kind:string,product:string|null,example:{tools:any;messages:Msg[]})=>
  const owner=String(example.messages.filter(m=>m.role==='user').at(-1)?.content||'');
  examples.push({split:product&&HELD_OUT.has(product)?'eval':hash(owner)%100<6?'eval':'train',heldOut:!!product&&HELD_OUT.has(product),kind,tools:example.tools,messages:example.messages});
 };
-const fresh=(reconciled:boolean)=>{store.reset();if(reconciled)store.reconcile();};
+// Most examples (85%) get their own stock counts, prices and shelf locations, so only reading the tool result pays off
+// (v5 memorised the demo store's numbers). A variant number makes the same random store reproducible.
+const db=getDatabase();
+const DETAILS=db.query<{item:string;location:string;selling_price:number}>('SELECT item,location,selling_price FROM product_details WHERE store_id=?',[STORE]);
+function randomize(variant:number){
+ let v=variant;const r=()=>{v=(v*1103515245+12345)%2147483648;return v/2147483648;};
+ const day=db.one<{day:string}>('SELECT MAX(day) AS day FROM inventory WHERE store_id=?',[STORE])!.day;
+ const places=DETAILS.map(d=>d.location).map(l=>[r(),l] as const).sort((a,b)=>a[0]-b[0]).map(([,l])=>l);
+ db.transaction(()=>{
+  DETAILS.forEach((d,i)=>db.run('UPDATE product_details SET location=?,selling_price=? WHERE store_id=? AND item=?',[places[i],Math.max(0.5,Math.round(d.selling_price*(0.7+0.7*r())*4)/4),STORE,d.item]));
+  for(const row of db.query<{item:string;full_stock:number;unit_cost:number}>('SELECT item,full_stock,unit_cost FROM inventory WHERE store_id=? AND day=?',[STORE,day])){const opening=Math.round(row.full_stock*(r()<0.12?0.05+0.35*r():0.45+0.55*r()));db.run('UPDATE inventory SET opening_stock=?,stock=?,unit_cost=? WHERE store_id=? AND day=? AND item=?',[opening,opening,Math.max(0.25,Math.round(row.unit_cost*(0.7+0.7*r())*4)/4),STORE,day,row.item]);}
+ });
+}
+const restoreDetails=()=>db.transaction(()=>{for(const d of DETAILS)db.run('UPDATE product_details SET location=?,selling_price=? WHERE store_id=? AND item=?',[d.location,d.selling_price,STORE,d.item]);});
+const fresh=(reconciled:boolean,variant=Math.floor(rand()*2147483647))=>{store.reset();restoreDetails();if(variant%100<85)randomize(variant);if(reconciled)store.reconcile();return variant;};
 
 // 1. Where is it / do we have it / how many / price, for every product and spoken name (two passes for phrasing variety).
 for(let pass=0;pass<2*SCALE;pass++)for(const product of ITEMS){
@@ -133,9 +150,10 @@ for(let n=0;n<60*SCALE;n++){
 }
 
 // 3. Restock drafts: reconcile, then draft from suggestedReorder, optionally only the named items.
-const lowNames=()=>{fresh(false);const r:any=store.reconcile();return (r.suggestedReorder||[]) as {item:string;qty:number}[];};
+// The same random store twice: once to read what is low, then fresh for the conversation.
+const lowNames=()=>{const variant=fresh(false);const r:any=store.reconcile();return {variant,suggested:(r.suggestedReorder||[]) as {item:string;qty:number}[]};};
 for(let n=0;n<110*SCALE;n++){
- const suggested=lowNames();fresh(false);
+ const {variant,suggested}=lowNames();if(!suggested.length||suggested.length>15)continue;fresh(false,variant);
  const only=rand()<0.65&&suggested.length>1?[pick(suggested)]:suggested;
  const name=(i:{item:string})=>pick((SPOKEN[i.item]||[[i.item.toLowerCase(),'']]).map(([s])=>s));
  const text=only===suggested?pick(['Reconcile and restock.','Reconcile my inventory based on today’s transactions, and if I’m running low, order from Amazon.','Restock whatever is low.','Draft a reorder for the low items.','Order more of what we’re running out of.']):pick([`Restock only the ${name(only[0])}.`,`Draft a restock for just ${name(only[0])}.`,`Draft a restock for only ${name(only[0])}.`,`Reorder ${name(only[0])} only, not the rest.`,`Order more ${name(only[0])}.`,`Only restock ${name(only[0])}.`,`Just order the ${name(only[0])}.`,`Restock ${name(only[0])}, nothing else.`,`I only want ${name(only[0])} restocked.`]);
@@ -144,7 +162,7 @@ for(let n=0;n<110*SCALE;n++){
 }
 // A narrower request after a full draft: reconcile again (idempotent) and draft only the named item.
 for(let n=0;n<30*SCALE;n++){
- const suggested=lowNames();if(suggested.length<2)break;fresh(false);
+ const {variant,suggested}=lowNames();if(suggested.length<2||suggested.length>15)continue;fresh(false,variant);
  const keep=pick(suggested);const said=pick((SPOKEN[keep.item]||[[keep.item.toLowerCase(),'']]).map(([s])=>s));
  const t=new Turn(pick([`No, only the ${said}.`,`Just the ${said} please.`,`Leave the rest out, only ${said}.`]),[['Reconcile and restock.',`I've drafted ${list(suggested.map(i=>`${i.qty} bags of ${i.item}`))}. Shall I place this order?`]]);
  await t.call('reconcile_inventory');const draft=await t.call('place_reorder',{items:[keep],confirmed:false});
@@ -190,16 +208,13 @@ const chat:[string,string[]][]=[
  ['Thank you',['You’re welcome!','Happy to help.']],['Thanks, that’s all',['You’re welcome. Have a good evening.']],
  ['What can you do?',['I can find products and their shelf locations, check stock and prices, summarise today’s sales, reconcile inventory and draft restock orders for your approval.']],
  ['Good morning',['Good morning! Ready when you are.']],['Who are you?',['I’m StoreYog, your store assistant for Little India Grocery.']],
- ['Tell me a joke',['Why did the lentil break up with the rice? It needed some space in the pantry.']],['What time do you close?',['I don’t have store hours in my tools, but I can help with stock, sales and orders.']],
+ ['What time do you close?',['I don’t have store hours in my tools, but I can help with stock, sales and orders.']],
 ];
 chat.push(
  ['Good night',['Good night! Your store data will be here tomorrow.']],['Are you there?',['Yes, I’m here. What would you like to check?']],
  ['Can you hear me?',['Yes, I can hear you. How can I help?']],['That’s great',['Glad to help!']],['Okay',['Anything else you’d like to check?']],
- ['What’s the weather today?',['I can’t check the weather. I can help with your store’s stock, sales and orders.']],
- ['Play some music',['I can’t play music here, but I can check stock, sales or draft a restock.']],
- ['How do I make dal?',['Rinse the dal, simmer it with turmeric and salt until soft, then add a tempering of ghee, cumin and garlic. I can also check how much dal you have.']],
- ['What is garam masala?',['Garam masala is a warm spice blend, usually with cardamom, cinnamon, cloves, cumin and pepper.']],
- ['Can you place an order without asking me?',['No. I always draft the order first and wait for your clear yes before placing it.']],
+  ['Play some music',['I can’t play music here, but I can check stock, sales or draft a restock.']],
+   ['Can you place an order without asking me?',['No. I always draft the order first and wait for your clear yes before placing it.']],
  ['Is this a real Amazon order?',['No. Supplier orders in this demo are simulated; nothing is purchased.']],
  ['Never mind',['Okay. I’m here when you need me.']],['Help',['Try asking where something is, how much is left, how sales are today, or to restock what is low.']],
 );
@@ -208,11 +223,55 @@ chat.push(
  ['Are you a real person?',['No, I’m StoreYog, a voice assistant for your store.']],['Can customers see my sales?',['No. Customers only see published products and shelf locations, never counts, costs or sales.']],
  ['Who made you?',['StoreYog was built for the Alexa+ hackathon as a store assistant for small businesses.']],['Goodbye',['Goodbye! Have a great day.']],['Bye',['Bye for now.']],
  ['Nice work',['Thank you!']],['Wait',['Sure, take your time.']],['Sorry, wrong question',['No problem. What would you like to check?']],
- ['What is the capital of India?',['New Delhi. For your store, I can check stock, sales or restocking.']],['How are you?',['I’m doing well, thanks! How can I help with the store?']],
+ ['How are you?',['I’m doing well, thanks! How can I help with the store?']],
  ['Can you speak Hindi?',['I answer in English for now, but I understand grocery names like haldi, jeera and aloo.']],
+);
+chat.push(
+ ['What tips do you have?',['I have 33 short audio guides: 13 on inventory, 12 on running a small business, and 8 on food and nutrition. Say play an inventory tip, play a business tip, or ask something like is paneer high in protein.']],
+ ['What guides do you have?',['I have 33 short audio guides: 13 on inventory, 12 on running a small business, and 8 on food and nutrition. Say play an inventory tip or play a business tip.']],
+ ['What can you show me?',['I can show shelf photos for our products, play the StoreYog demo video, play short audio tips, and check stock, sales and restocks.']],
 );
 const openers=['','Alexa, ','Hey StoreYog, ','StoreYog, '];
 for(let pass=0;pass<SCALE*3;pass++)for(const [q,answers] of chat)for(const a of answers)for(const o of shuffle(openers).slice(0,3)){const t=new Turn(o?o+q[0].toLowerCase()+q.slice(1):q);add('chat',null,t.answer(a));}
+
+// 7. Shelf photos: a product lookup; the app shows the published shelf photo with its arrow for a single match.
+for(let pass=0;pass<SCALE;pass++)for(const product of ITEMS){
+ fresh(rand()<0.5);const [said,word]=pick(SPOKEN[product]);
+ const t=new Turn(pick([`Show me the ${said} shelf.`,`Show me a picture of ${said}.`,`Show me where the ${said} is.`,`Can I see the ${said} photo?`,`show ${said} image`,`Display the ${said} shelf`]));
+ const r=await t.call('get_inventory',{item:word});const i=((r.items||[]) as any[]).find(x=>x.item===product);
+ add('shelf',product,t.answer(i?pick([`Here is the ${i.item} shelf. It's ${at(i)}.`,`Here's ${i.item}, ${at(i)}.`]):`I couldn't find ${said}.`));
+ // "Show me a picture of that" after talking about a product.
+ if(rand()<0.5&&i){fresh(false);const r2=await new Turn('x').call('get_inventory',{item:word});const j=(r2.items||[]).find((x:any)=>x.item===product);if(j){const t2=new Turn(pick(['Show me a picture of that.','Can you show me that shelf?','Show me where it is.','show me the photo']),[[`How much ${said} do we have?`,`We have ${quantity(j)} of ${product} in stock.`]]);await t2.call('get_inventory',{item:word});add('shelf',product,t2.answer(`Here is the ${j.item} shelf. It's ${at(j)}.`));}}
+}
+// 8. The whole product list.
+for(let n=0;n<25*SCALE;n++){
+ fresh(rand()<0.5);const t=new Turn(pick(['List of items.','What items do we have?','What do we sell?','What products do we carry?','Tell me the list of items we have.','What else do we have?','Which products are in the store?','Read me our product list.','What all do we stock?']));
+ const r=await t.call('get_inventory',{});const names=shuffle(((r.items||[]) as any[]).map(i=>i.item)).slice(0,6);
+ add('list',null,t.answer(`We carry ${(r.items||[]).length} products, including ${list(names)}. Ask me about any of them.`));
+}
+// 9. Demo film and audio guides (simulator tools).
+for(let n=0;n<20*SCALE;n++){
+ {const t=new Turn(pick(['Play the demo.','Show me the demo video.','Can you show me some demo?','Can you play the demo?','Play the video.','Show me a demo.','I want to watch the demo.','Play the StoreYog video.','Start the demo film.']));t.tool('play_demo',{},{status:'playing',summary:'playing: StoreYog demo video'});add('demo',null,t.answer(pick(['Here is the StoreYog demo.','Sure, here is the StoreYog demo video.','Playing the StoreYog demo now.'])));}
+ const [text,topic]=pick([['Give me some tips.',''],['Play some tips.',''],['play a tip',''],['Give me a tip.',''],['Any advice for me?',''],['Play an inventory tip.','inventory'],['Give me inventory advice.','inventory'],['How do I manage my stock better?','inventory'],['Play a business tip.','business'],['How can I grow my business?','business'],['Any marketing tips?','business'],['How do I price my products?','business'],['Play a food tip.','food'],['Is paneer high in protein?','food'],['Which foods have the most protein?','food'],['Is ghee healthy?','food'],['Tell me about the nutrition of dal.','food'],['Rice or atta, which is healthier?','food']] as [string,string][]);
+ const guide=pickGuide(text+' '+topic,undefined,true)!;
+ {const t=new Turn(text);t.tool('play_guide',topic?{topic}:{},{status:'playing',guide:Number(guide.id),title:guide.title,summary:`playing guide ${Number(guide.id)}: ${guide.title}`});add('guide',null,t.answer(pick([`Here is guide ${Number(guide.id)}: ${guide.title}.`,`Sure. Guide ${Number(guide.id)}: ${guide.title}.`])));}
+ {const next=pickGuide('next',guide.id)!;const t=new Turn(pick(['Next tip.','Another one.','Play the next tip.','One more tip.','next']),[[text,`Here is guide ${Number(guide.id)}: ${guide.title}.`]]);t.tool('play_guide',{},{status:'playing',guide:Number(next.id),title:next.title,summary:`playing guide ${Number(next.id)}: ${next.title}`});add('guide',null,t.answer(`Here is guide ${Number(next.id)}: ${next.title}.`));}
+}
+// 10. General questions go to the general LLM (ask_general); the app speaks its answer.
+const GENERAL:[string,string][]=[
+ ['Tell me a joke','Why did the lentil break up with the rice? It needed some space in the pantry.'],['What’s the weather today?','I can’t check live weather here, but I hope it’s a good day for business.'],
+ ['How do I make dal?','Rinse the dal, simmer it with turmeric and salt until soft, then add a tempering of ghee, cumin and garlic.'],['What is garam masala?','Garam masala is a warm spice blend, usually with cardamom, cinnamon, cloves, cumin and pepper.'],
+ ['What is the capital of India?','The capital of India is New Delhi.'],['What can I cook with paneer?','Paneer works well in palak paneer, paneer tikka or a simple paneer bhurji.'],['How do I make chai?','Boil water with tea leaves, ginger and cardamom, add milk and sugar, simmer briefly and strain.'],
+ ['Why is turmeric yellow?','Turmeric gets its yellow color from curcumin, a natural pigment in the root.'],['Who invented the samosa?','Samosas came to India from Central Asia centuries ago, carried by traders and cooks.'],['What is Diwali?','Diwali is the festival of lights, celebrated with lamps, sweets and family gatherings.'],
+ ['How many grams in a pound?','One pound is about 454 grams.'],['Give me a recipe for rajma.','Soak rajma overnight, cook until soft, then simmer in an onion, tomato, ginger and garlic masala.'],['What is the difference between dal and lentils?','Dal usually means split lentils or pulses, and also the soup cooked from them.'],
+ ['Translate thank you to Hindi.','Thank you in Hindi is dhanyavaad, or shukriya.'],['What is two plus two?','Two plus two is four.'],['Who is the prime minister of India?','I may not have the latest news, but I can help with general questions and your store.'],
+ ['How do I keep customers happy?','Greet them by name, keep favorites in stock, and make it easy to find things.'],['What goes well with rice?','Dal, curries, raita and pickles all go well with rice.'],['Is it going to rain?','I can’t check live weather here.'],['Tell me something interesting.','Cardamom is one of the most expensive spices in the world by weight.'],
+];
+for(let pass=0;pass<SCALE*2;pass++)for(const [q,a] of GENERAL){const t=new Turn(q);t.tool('ask_general',{},{answer:a,summary:a});add('general',null,t.answer(a));}
+// 11. Reactions after an answer ("Oh great.") need no tool and never change anything.
+const REACTIONS=['Oh great.','Great.','Cool.','Nice.','Perfect.','Awesome.','Okay great.','Got it.','Alright.','Wow.','Hmm, okay.','That’s good.','Oh nice.','Good to know.','Okay.','Great, thanks.','Interesting.','Oh, okay.'];
+const finishedTurns=()=>examples.filter(e=>e.kind!=='chat'&&e.messages.filter(m=>m.role==='user').length===1).map(e=>[String(e.messages.find(m=>m.role==='user')!.content),String(e.messages.at(-1)!.content)] as [string,string]);
+{const done=finishedTurns();for(let n=0;n<60*SCALE;n++){const t=new Turn(pick(REACTIONS),[pick(done)]);add('reaction',null,t.answer(pick(['Glad to help. Anything else?','Happy to help.','Anything else you’d like to check?','Great. What else can I do for you?'])));}}
 
 // Real conversations carry earlier, unrelated turns. Prepend one or two finished turns from other examples
 // to about half of the single-turn examples, so the model acts on the latest request and ignores stale context.

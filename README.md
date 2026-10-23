@@ -85,6 +85,20 @@ See [.env.example](.env.example) and [API configuration](docs/API_CONFIGURATION.
 
 The same MCP-backed assistant also runs on a real Echo through a **classic Alexa custom skill**. This is not Alexa+, whose preview tools are partner-only. One catch-all intent sends whatever the user says to StoreYog's agent and MCP tools. On an Echo Show it also shows shelf photos with the arrow, plays the demo video, and answers general questions through the configured LLM. Store facts always come from MCP. The skill is in development stage on the developer's own account ("Alexa, open store yog"); judges can review the code and the setup guide in [classical-alexa/README.md](classical-alexa/README.md). It is off unless `CLASSIC_ALEXA_ENABLED=true`, and requests are verified with Amazon's request-signature rules.
 
+## Research: three tool-calling modes
+
+With a model configured, the simulator's **Mode** selector switches how a request becomes MCP tool calls, on the same store and behind the same safety guard:
+
+- **LLM router · in-context.** One LLM call picks one of eleven numbered actions from examples; code runs the MCP tools and builds the reply from real results.
+- **StoreYog small model (research only).** Our OPT-350M fine-tune, published at [huggingface.co/dlyog/storeyog-opt-350m-mcp-tools](https://huggingface.co/dlyog/storeyog-opt-350m-mcp-tools) under Meta's OPT-175B license, which allows non-commercial research use only. The page shows a notice before it is used.
+- **LLM tool loop.** The model receives the tool schemas and plans the calls itself.
+
+Every request and model-written reply passes a responsible-AI prompt guard (`simulator/prompt-guard.ts`, see [docs/responsible-ai](docs/responsible-ai/README.md)). Every model call and MCP call is recorded in the store audit with its mode.
+
+The paper, the 30-turn benchmark with three scored runs per mode, the audited model calls, a live tester session, the guard evaluation and the training statistics are in [research/](research/paper.md). Results: router 96.7%, small model 90.0%, native tool calling 48.9%; guard F1 99.67.
+
+`node --import tsx scripts/compare-modes.ts --prompts research/benchmark-prompts.json` reruns the benchmark against a running installation.
+
 ## Development and tests
 
 After setup, Node 22+ and dependencies are available. If Node was installed locally, use the executable under `.runtime/node/` or add its `bin` directory (Windows: installation directory) to PATH. If system Node is available:
@@ -109,6 +123,10 @@ Use `python3 setup.py --demo --non-interactive --verify` to run all core checks 
 - [Agent instructions](AGENTS.md) and [Claude memory](CLAUDE.md)
 
 **Alexa+ track:** self-hosted MCP 2025-11-25 Streamable HTTP + our own web simulation. Amazon’s official FAQ limits Alexa+ preview tools to selected partners; participants cannot obtain that access through the hackathon. This repository does not claim native Alexa account/device/mobile integration. A classic Custom Skill endpoint is a different protocol. [Official FAQ](https://amazonappdev2026.devpost.com/details/faqs)
+
+## Trademarks
+
+Alexa, Alexa+, Echo, Echo Show, Amazon and Amazon Business are trademarks of Amazon.com, Inc. or its affiliates; Gemma is a trademark of Google LLC; OPT is a model released by Meta Platforms, Inc.; other names belong to their respective owners. They are mentioned only to describe compatibility and for reference, as nominative fair use. StoreYog is an independent hackathon project and is not affiliated with, sponsored by or endorsed by Amazon, Google, Meta or any other organization or employer.
 
 ## Troubleshooting
 

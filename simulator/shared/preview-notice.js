@@ -30,6 +30,7 @@
     <p class="preview-data"><strong>Synthetic data only.</strong> Do not enter, upload, or speak real customer personally identifiable information (PII), protected health information (PHI), or payment/cardholder data (PCI). Such data is not requested or permitted in this playground.</p>
     <p>Registration stores your owner email and a password hash for sign-in. Chat text and microphone audio are processed to provide responses. Tool activity and technical access logs may be recorded. Do not submit confidential information. Orders are simulated; no purchases or payments are processed.</p>
     <label><input id="preview-notice-ack" type="checkbox"><span>I understand this is a hackathon preview and will use synthetic data only.</span></label>
+    <p style="font-size:13px;color:#5b6f62">Product and company names such as Alexa, Echo, Amazon, Gemma and OPT are used only for reference. StoreYog is independent and not endorsed by Amazon, Google, Meta or any organization or employer.</p>
     <div class="preview-actions"><button id="preview-notice-continue" disabled>Enter the playground</button><button type="button" class="preview-leave">Leave preview</button></div>`;
   const reopen = document.createElement('button');
   reopen.id = 'preview-notice-reopen';
@@ -38,7 +39,12 @@
   reopen.setAttribute('aria-label', 'Preview notice');
   reopen.title = 'Preview notice';
   reopen.setAttribute('aria-haspopup', 'dialog');
-  document.body.append(dialog, reopen);
+  // Trademark and independence note at the bottom of every public page (nominative fair use).
+  const legal = document.createElement('p');
+  legal.id = 'storeyog-trademark-note';
+  legal.textContent = 'Alexa, Alexa+, Echo, Echo Show, Amazon and Amazon Business are trademarks of Amazon.com, Inc. or its affiliates; Gemma is a trademark of Google LLC; OPT is a model released by Meta Platforms, Inc.; other names belong to their respective owners. They are mentioned only to describe compatibility and for reference, as nominative fair use. StoreYog is an independent hackathon project of DLYog Lab Research Services LLC and is not affiliated with, sponsored by or endorsed by Amazon, Google, Meta or any other organization or employer.';
+  legal.style.cssText = 'box-sizing:border-box;max-width:980px;margin:18px auto 24px;padding:0 16px 0 16px;font:11px/1.5 system-ui,sans-serif;color:#8a97a6;text-align:center';
+  document.body.append(dialog, reopen, legal);
   const checkbox = dialog.querySelector('#preview-notice-ack');
   const proceed = dialog.querySelector('#preview-notice-continue');
   const show = () => { if (!dialog.open) { dialog.showModal(); dialog.querySelector('h2').focus(); } };

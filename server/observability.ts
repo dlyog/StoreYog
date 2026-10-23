@@ -2,9 +2,9 @@ import {modelAuditSchema} from './model-audit.js';
 import type {SqlTrace} from './database.js';
 import {getDatabase} from './database.js';
 import type {Identity} from './auth.js';
-export type CallContext={id:string;conversationId?:string;identity:Identity;queries:SqlTrace[];summary:string;error?:string;invoked:boolean};
+export type CallContext={id:string;conversationId?:string;mode?:string;identity:Identity;queries:SqlTrace[];summary:string;error?:string;invoked:boolean};
 export function recordCall(ctx:CallContext,method:string,tool:string|undefined,args:unknown,ms:number){
- getDatabase().run('INSERT INTO mcp_calls(id,store_id,key_id,method,tool,args_json,success,duration_ms,summary,error,queries_json,created_at,conversation_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',[ctx.id,ctx.identity.storeId,ctx.identity.keyId,method,tool||null,JSON.stringify(args||{}),ctx.error?0:1,Number(ms.toFixed(2)),ctx.summary,ctx.error||null,JSON.stringify(ctx.queries),new Date().toISOString(),ctx.conversationId||null]);
+ getDatabase().run('INSERT INTO mcp_calls(id,store_id,key_id,method,tool,args_json,success,duration_ms,summary,error,queries_json,created_at,conversation_id,mode) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[ctx.id,ctx.identity.storeId,ctx.identity.keyId,method,tool||null,JSON.stringify(args||{}),ctx.error?0:1,Number(ms.toFixed(2)),ctx.summary,ctx.error||null,JSON.stringify(ctx.queries),new Date().toISOString(),ctx.conversationId||null,ctx.mode||null]);
  console.log(JSON.stringify({requestId:ctx.id,storeId:ctx.identity.storeId,method,tool,ms:Number(ms.toFixed(2)),queries:ctx.queries.length,error:ctx.error||null}));
 }
 export function securityEvent(event:string){getDatabase().run('INSERT INTO security_events(event,created_at) VALUES (?,?)',[event,new Date().toISOString()]);}
