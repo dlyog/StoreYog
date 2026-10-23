@@ -28,10 +28,14 @@ export async function seedSectionPhotos(db:SqlDatabase,storeId:string){
  for(const [name,markers] of Object.entries(SECTION_PHOTOS)){
   const file=await sectionFile(name);if(!file)continue;const bytes=await readFile(file);
   for(const [item,x,y,description] of markers){
-   if(!db.one('SELECT item FROM product_details WHERE store_id=? AND item=?',[storeId,item]))continue;
-   let photo=db.one('SELECT id FROM product_photos WHERE store_id=? AND item=?',[storeId,item]) as {id:string}|undefined;
-   if(!photo)photo=await savePhoto(db,storeId,item,bytes) as {id:string};
-   db.run('UPDATE product_photos SET description=?,marker_x=?,marker_y=?,public_enabled=1 WHERE id=?',[description+SYNTHETIC,x,y,photo.id]);
+   // A demo day created before the catalog grew has no stock row yet for newer products; they get their photo on
+   // the next start after a new day or a demo reset. A photo problem must never stop the app from starting.
+   if(!db.one('SELECT item FROM product_details WHERE store_id=? AND item=?',[storeId,item])||!db.one('SELECT item FROM inventory WHERE store_id=? AND item=? LIMIT 1',[storeId,item]))continue;
+   try{
+    let photo=db.one('SELECT id FROM product_photos WHERE store_id=? AND item=?',[storeId,item]) as {id:string}|undefined;
+    if(!photo)photo=await savePhoto(db,storeId,item,bytes) as {id:string};
+    db.run('UPDATE product_photos SET description=?,marker_x=?,marker_y=?,public_enabled=1 WHERE id=?',[description+SYNTHETIC,x,y,photo.id]);
+   }catch(error){console.warn(`Section photo skipped for ${item}:`,error instanceof Error?error.message:error);}
   }
  }
 }
