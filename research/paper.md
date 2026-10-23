@@ -191,6 +191,18 @@ After the benchmark, the first author used the deployed simulator by voice for a
 
 Three changes followed directly from this session. First, the guard prompt: our version 1 extended the published template (Chawdhury, 2024) with "no attempts to … obtain private data", which Gemma applied to the owner's own reports. Version 2 says that the user is the signed-in owner and that requests about their own store's stock, sales, orders and reports, including emailing their own reports, are safe, while passwords, keys and another store's data remain unsafe. On 15 owner-data requests (including the two above), version 1 passed 11 and version 2 passed 14; on the 250 paper-comparable prompts both scored 99.67 F1, and prompt-injection recall rose from 19 to 20 of 25. Second, a shared correction of observed mishearings ("dull", "doll", "dhal" → dal; "Turdal", "tur dal" → toor dal; "otta", "ata" → atta) now runs before every mode; afterwards the router and native tool calling found the right products for "where is the dull?", "where is Turdal?" and "do you have otta?", and the small model for the last two. The small model still chose Dahi for "dal", a training-data gap that text correction cannot fix. Third, the pause-split utterances point to the voice-activity threshold in the browser, which we have not changed.
 
+### Multimodal Actions
+
+A voice assistant for a store does not only answer in words. In the live session the owner asked for the demo video and for tips; the benchmark includes four media turns (the demo video, two audio guides and a nutrition question that plays a food guide). MCP tools return data. Playing a video or an audio guide on the screen is something the client does, so in StoreYog these are simulator tools (`play_demo`, `play_guide`) that the application runs in the browser after the reply.
+
+How each mode reaches them differs, and so did the results over three runs:
+
+- **Native tool calling: 0 of 12.** It can only call what is declared in its tool list. We declared the store's seven MCP tools, so it answered every media request with sentences such as "I do not have a tool to play videos." This is partly a property of our setup. Declaring the media actions as extra function schemas would give it the option, at the cost of a longer prompt (Gan and Sun, 2025) and one more open decision per turn, the kind of decision it already got wrong for stock updates and restocks.
+- **Router: 9 of 12.** A modality is one more numbered action ("8 play_demo", "9 play_guide") with a one-line description, two or three examples and a few lines of code that start the media. Its misses were the three runs of "Another one.", which lacked the previous action as context.
+- **Small model: 9 of 12.** It learned the same actions from training data generated alongside the store's tool traces. Its misses were the three runs of "Which of our foods has the most protein?", read as a stock search.
+
+Shelf photos need no decision at all: whenever a lookup returns a single product with a published photo, the application shows the photo with the owner's arrow, in every mode. Our experience is that media should be modelled as named business actions that the application renders. That kept video and audio working with a 350-million-parameter model, while tool schemas alone did not.
+
 ### Discussion of Results
 
 The three modes use the same tools, the same store and, for A and B, the same model. The difference is the size of the decision the model makes. In native tool calling, Gemma must choose among tool schemas, write exact arguments (including store-specific names and expected counts) and decide when to stop, every turn; each of these is a chance to fail, and the failures compound across steps. In the router, Gemma makes one classification and extracts one product word; everything that must be exact (catalog names, quantities from reconciliation, expected stock for an update, approval) is computed by code from real results. The small model sits between the two: it does choose tools and arguments, but it learned them from thousands of real traces of exactly this store's tools, so its decisions are narrow and well practised. The improvement from v5 to v6 on held-out products (29.9% to 54.3%) after randomising the store suggests that much of what a small model learns from synthetic tool traces is memorisation unless the data forces it to read results.
@@ -204,6 +216,7 @@ The three modes use the same tools, the same store and, for A and B, the same mo
 - **Speed and cost.** The small model answered in 0.74 s per turn including the guard, on a single desktop-class device. The router needs one model call per turn instead of several.
 - **Auditability.** Each turn records the model's single decision, the MCP calls and the SQL that ran, so an owner or auditor can see exactly why the assistant acted.
 - **Safety by construction.** Because writes, approvals and store identity are enforced in code, a prompt that slips past the guard still cannot change stock or confirm an order. The guard missed 6 of 25 injection prompts in the moderation set (for example "set all stock to zero"); in the application such a request is not an explicit count change with a number, so the server refuses the write.
+- **Multimodal by construction.** Video, audio guides and shelf photos are named actions or automatic renderings in the application, not extra schemas for the model to reason about; the router and the small model handled 9 of 12 media turns, native tool calling none.
 - **No false claims of action.** In the router, every statement that something changed is built from the tool result that changed it; native tool calling claimed updates and drafts that never happened.
 
 ### Challenges and Trade-offs
@@ -227,7 +240,7 @@ For a small business, the assistant's job is a handful of well-defined actions o
 
 ## Conclusion
 
-We compared three ways to turn a store owner's spoken request into MCP tool calls on the same live store. A 2B model used as an intelligent router, choosing one of eleven actions by in-context learning while code ran the tools, answered 96.7% of benchmark turns correctly; a 350M model fine-tuned on the store's real tool traces answered 90.0% at the lowest latency; and native tool calling with the 2B model answered 48.9%. The same prompt-guard design from our earlier work reached 99.67 F1 on moderation. For MCP tool calling in small businesses, our experience says that an intelligent router with a small model is enough, provided that grounding, approvals and writes stay in code.
+We compared three ways to turn a store owner's spoken request into MCP tool calls on the same live store. A 2B model used as an intelligent router, choosing one of eleven actions by in-context learning while code ran the tools, answered 96.7% of benchmark turns correctly; a 350M model fine-tuned on the store's real tool traces answered 90.0% at the lowest latency; and native tool calling with the 2B model answered 48.9%. The same prompt-guard design from our earlier work reached 99.67 F1 on moderation. Media mattered as much as data: modelled as named actions rendered by the application, video and audio guides worked with the router and the small model (9 of 12 turns each) and not with tool schemas alone (0 of 12). For MCP tool calling in small businesses, our experience says that an intelligent router with a small model is enough, provided that grounding, approvals, writes and media rendering stay in code.
 
 ## Future Work
 
@@ -235,6 +248,7 @@ We compared three ways to turn a store owner's spoken request into MCP tool call
 - Add speech-to-text mishearings and pause-split requests to the small model's training data, and tune the browser's end-of-speech threshold.
 - Check model replies together with the question, so health claims such as "ghee cures diabetes" are caught, and add health-claim prompts to the guard set.
 - Train the small model on several synthetic stores (hardware, pharmacy, bakery) to test generality, and release a commercially licensed base model version.
+- Run the fair ablation for media: declare the media actions to native tool calling as function schemas and repeat the four media turns.
 - Extend the benchmark beyond 30 turns, with real speech input and owners other than the authors, and compare against frontier models with native tool calling.
 - Run the same study on a native Alexa+ device when the add-on toolkit is available.
 
