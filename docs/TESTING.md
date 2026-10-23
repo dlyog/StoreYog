@@ -59,4 +59,4 @@ For real voice, configure `setup.py --live`, allow microphone access in Chrome o
 
 ## Test status and platform scope
 
-See the release notes in this repository for checks actually run. The included CI matrix targets macOS, Linux and Windows, but a workflow file is not proof those jobs passed before the repo is pushed/run. Local sessions used macOS; platform-specific claims must be updated with real CI results. The automatic Node bootstrap was tested with the system Node lookup hidden, and the official runtime checksum was verified.
+See the release notes in this repository for checks actually run. There is no CI workflow; checks are run locally. Local sessions used macOS; Linux and Windows have not been exercised, so platform-specific claims need a real run there. The automatic Node bootstrap was tested with the system Node lookup hidden, and the official runtime checksum was verified.

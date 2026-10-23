@@ -136,6 +136,6 @@ Alexa, Alexa+, Echo, Echo Show, Amazon and Amazon Business are trademarks of Ama
 - **Voice unavailable:** type instead, use default demo, or configure/check compatible speech services with `--live`. A URL without the right path/format/model/key is insufficient.
 - **Application error:** inspect `.runtime/storeyog.log`; rerun setup after correcting the problem. Existing data is preserved; setup does not reset the store.
 - **Fresh clone has no MP4:** intentional. Media are ignored; the landing video uses the hosted export and core local features do not depend on it. The Devpost entry separately needs a public YouTube/Vimeo URL.
-- **Windows/Linux support:** OS/CPU branches and CI workflow are supplied. Only macOS has been exercised in this release session; see the test status for evidence rather than assuming an unrun platform passed.
+- **Windows/Linux support:** `setup.py` has OS/CPU branches for Windows and Linux, but only macOS has been exercised; there is no CI workflow, so run `python3 setup.py --demo --non-interactive --verify` yourself on other platforms.
 
 Licensed under [Apache-2.0](LICENSE). Synthetic-data hackathon preview; use only fictitious inventory, prompts and pictures. Do not submit payment, health or other sensitive customer data. Account credentials/email for owner login are stored locally; this is not a claim that no personal information can ever be processed.
