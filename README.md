@@ -95,7 +95,7 @@ With a model configured, the simulator's **Mode** selector switches how a reques
 
 Every request and model-written reply passes a responsible-AI prompt guard (`simulator/prompt-guard.ts`, see [docs/responsible-ai](docs/responsible-ai/README.md)). Every model call and MCP call is recorded in the store audit with its mode.
 
-The paper, the 30-turn benchmark with three scored runs per mode, the audited model calls, a live tester session, the guard evaluation and the training statistics are in [research/](research/paper.md); the paper is also published as DLYOG-TR-2026-007 at https://www.dlyog.com/papers/IntelligentRouterMCPToolCalling. Results: router 96.7%, small model 90.0%, native tool calling 48.9%; guard F1 99.67.
+The paper, the 30-turn benchmark with three scored runs per mode, the audited model calls, a live tester session, the guard evaluation and the training statistics are in [research/](research/paper.md); the paper is also published as DLYOG-TR-2026-007 at https://www.dlyog.com/papers/IntelligentRouterMCPToolCalling, and a research film shows the three modes live: https://youtu.be/plRlsZMPN7E. Results: router 96.7%, small model 90.0%, native tool calling 48.9%; guard F1 99.67.
 
 `node --import tsx scripts/compare-modes.ts --prompts research/benchmark-prompts.json` reruns the benchmark against a running installation.
 

@@ -21,7 +21,7 @@ DESCRIPTION = ('Three ways to turn a small-store owner\'s spoken request into MC
 KEYWORDS = ('Model Context Protocol, tool calling, function calling, small language models, in-context learning, intelligent router, '
             'small business, voice assistant, OPT-350M, Gemma, responsible AI, prompt guard')
 LINKS = [('Code and data', 'https://github.com/dlyog/StoreYog'), ('Model', 'https://huggingface.co/dlyog/storeyog-opt-350m-mcp-tools'),
-         ('Live demo', 'https://storeyog.dlyog.com'), ('Video', 'https://youtu.be/uU1Ww_vpUAU')]
+         ('Research film', 'https://youtu.be/plRlsZMPN7E'), ('Live demo', 'https://storeyog.dlyog.com')]
 
 
 def inline(text):
