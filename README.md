@@ -2,7 +2,9 @@
 
 **A shared inventory platform for a small store, with an owner workspace, customer finder and Alexa+-style voice simulator backed by a real MCP server.**
 
-[Try the hosted experience](https://storeyog.dlyog.com/) · [Verify real MCP calls](https://storeyog.dlyog.com/store/admin) · [Watch the 2:57 demo video](https://www.youtube.com/watch?v=2lTYkuJm1EM)
+[![StoreYog on a real Echo Show: watch the 2:58 demo](https://img.youtube.com/vi/uU1Ww_vpUAU/maxresdefault.jpg)](https://youtu.be/uU1Ww_vpUAU)
+
+**[▶ Watch the 2:58 demo](https://youtu.be/uU1Ww_vpUAU)** · [Try it: storeyog.dlyog.com/simulator](https://storeyog.dlyog.com/simulator) · [Verify real MCP calls](https://storeyog.dlyog.com/store/admin)
 
 A customer finds dal using a shelf photo and directions. The owner manages products and checkout, asks about stock, and approves a simulated restock. SQLite is shared by the workspace, POS and authenticated MCP tools. Calls have persisted request IDs and executed SQL, so the judge can verify operations.
 

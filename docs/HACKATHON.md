@@ -20,7 +20,7 @@ The event asks for a working project description, accessible source and run inst
 | Repository | Public `https://github.com/dlyog/StoreYog`; verify latest files are actually pushed before submission |
 | License | Preserve the public repo’s existing Apache-2.0 `LICENSE` |
 | Judge startup | One Python setup entry point, no-API mode by default, optional private provider configuration |
-| Video | V7 live demo, 2:57 at normal speed, public on YouTube: https://www.youtube.com/watch?v=2lTYkuJm1EM (paste this URL into Devpost) |
+| Video | V8: StoreYog on a real Echo Show, plus the web simulator and the session's MCP audit, 2:58, public on YouTube: https://youtu.be/uU1Ww_vpUAU (paste this URL into Devpost) |
 | Description | Explain the solo-owner/customer problem, shared data and role separation; disclose simulation boundaries |
 | Feedback | Describe tools actually used, onboarding, strengths, problems/workarounds and willingness to use again; do not imply gated tools were used |
 | Change history | State what was built/significantly updated during the hackathon window, including reused reference integrations |

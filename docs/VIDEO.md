@@ -1,6 +1,10 @@
 # Pitch video and provenance
 
-**Submission video: V7 live demo, 2:57, public on YouTube: https://www.youtube.com/watch?v=2lTYkuJm1EM.** It is embedded on the landing page and described below.
+**Submission video: V8, "StoreYog on a Real Echo Show", 2:58, public on YouTube: https://youtu.be/uU1Ww_vpUAU.** It is embedded on the landing page.
+
+V8 opens with the "Still typing? Just think out loud" frame and a short pitch. Then comes a real Echo Show recording (76 s, the device's own audio), framed with StoreYog branding and a caption panel per turn: what was said, the modality (text, image, audio, video) and the MCP tool that answered. The Echo home screen is blurred for its first five seconds because it showed third-party content. Next is a live web segment on storeyog.dlyog.com/simulator with an owner prompt (reconcile and draft a restock, with the MCP trace and Verify call links) and a customer prompt (do you have toor dal? shelf photo and arrow). It ends with the `/store/admin` audit opened on the exact request IDs from that Echo session, the inventory report email it really sent, and the architecture. Narration is ElevenLabs Eleven v3; the upload is the 1.15× edition (pitch preserved) to stay under three minutes.
+
+The earlier V7 web-only demo: https://www.youtube.com/watch?v=2lTYkuJm1EM
 
 The earlier hosted V6 video has two editions: normal **207 seconds (3:27)** and exactly **1.25×, 165.6 seconds (2:45.6)**. The accelerated edition preserves pitch and fits the three-minute submission limit. Both use 1080p, quiet background music, clean cuts and no subtitle track. Generated MP3/WAV/MP4 and production caches are intentionally excluded from this public runtime repository.
 
