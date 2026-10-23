@@ -1,6 +1,6 @@
 // Section photos for the synthetic demo store (prompts: demo-assets/SECTION_PROMPTS.md). Each photo is shared by
-// the products in that section, with one arrow per product. Arrow positions are normalized (0–1) and are checked
-// against the finished image; a missing image file is skipped, so the store works before the photos exist.
+// the products in that section, with one arrow per product. Arrow positions are normalized (0–1), set by
+// inspecting each finished image on a 10% grid; a missing image file is skipped, so the store works before the photos exist.
 import {readFile,access} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import type {SqlDatabase} from './database.js';
@@ -8,13 +8,13 @@ import {savePhoto} from './photos.js';
 
 type Marker=[item:string,x:number,y:number,description:string];
 export const SECTION_PHOTOS:Record<string,Marker[]>={
- 'lentils-flour':[['Poha',.17,.15,'Flattened rice flakes, top shelf left.'],['Sooji',.5,.15,'Semolina bags, top shelf center.'],['Besan',.83,.15,'Gram flour bags, top shelf right.'],['Moong dal',.68,.42,'Green lentil bags, middle shelf right.'],['Masoor dal',.88,.42,'Orange lentil bags, middle shelf far right.'],['Kabuli chana',.17,.65,'Large white chickpeas, lower shelf left.'],['Rajma',.5,.65,'Red kidney beans, lower shelf center.'],['Urad dal',.83,.65,'White lentil bags, lower shelf right.'],['Atta',.17,.88,'Large flour sacks, bottom shelf left.']],
- 'spice-rack':[['Garam masala',.25,.15,'Brown spice pouches, top row left.'],['Cardamom',.75,.15,'Green cardamom pods, top row right.'],['Coriander powder',.25,.38,'Light brown pouches, second row left.'],['Red chili powder',.75,.38,'Bright red pouches, second row right.'],['Mustard seeds',.5,.62,'Small dark seeds, third row.']],
- 'oils-ghee':[['Ghee',.4,.2,'Glass jars of ghee, top shelf.'],['Jaggery',.85,.25,'Golden jaggery blocks, upper right.'],['Mustard oil',.25,.52,'Amber bottles, middle shelf left.'],['Coconut oil',.7,.52,'Clear bottles, middle shelf right.']],
- 'dairy-fridge':[['Paneer',.5,.2,'Paneer packs, top shelf.'],['Dahi',.5,.5,'Yogurt tubs, middle shelf.'],['Milk',.5,.8,'Milk jugs, bottom shelf.']],
- 'produce-bins':[['Tomatoes',.18,.45,'Red tomatoes, left bin.'],['Onions',.5,.45,'Brown onions, center bin.'],['Ginger',.76,.45,'Fresh ginger, small basket right.'],['Green chilies',.9,.45,'Green chilies, small basket right.'],['Potatoes',.5,.85,'Potatoes, floor crate.'],['Cilantro',.88,.15,'Cilantro bunches, chilled shelf top right.']],
- 'freezer':[['Frozen samosas',.5,.2,'Frozen samosa boxes, top basket.'],['Samosa wrappers',.5,.5,'Samosa wrapper packs, middle basket.'],['Frozen parathas',.5,.8,'Frozen paratha packs, bottom basket.']],
- 'snacks-pickles':[['Papad',.5,.3,'Papad packs, top shelf.'],['Mango pickle',.5,.72,'Mango pickle jars, lower shelf.']],
+ 'lentils-flour':[['Poha',.18,.12,'Flattened rice flakes, top shelf left.'],['Sooji',.52,.12,'Semolina bags, top shelf center.'],['Besan',.84,.12,'Gram flour bags, top shelf right.'],['Moong dal',.61,.35,'Green lentil bags, middle shelf right.'],['Masoor dal',.88,.35,'Orange lentil bags, middle shelf far right.'],['Kabuli chana',.18,.6,'Large white chickpeas, lower shelf left.'],['Rajma',.52,.6,'Red kidney beans, lower shelf center.'],['Urad dal',.84,.6,'White lentil bags, lower shelf right.'],['Atta',.18,.84,'Large flour sacks, bottom shelf left.']],
+ 'spice-rack':[['Garam masala',.25,.15,'Brown spice pouches, top row left.'],['Cardamom',.75,.15,'Green cardamom pods, top row right.'],['Coriander powder',.25,.39,'Light brown pouches, second row left.'],['Red chili powder',.75,.39,'Bright red pouches, second row right.'],['Mustard seeds',.5,.61,'Small dark seeds, third row.']],
+ 'oils-ghee':[['Ghee',.38,.2,'Glass jars of ghee, top shelf.'],['Jaggery',.88,.15,'Golden jaggery blocks, top right.'],['Mustard oil',.3,.55,'Amber bottles, middle shelf left.'],['Coconut oil',.8,.55,'Clear bottles, middle shelf right.']],
+ 'dairy-fridge':[['Paneer',.5,.2,'Paneer packs, top shelf.'],['Dahi',.5,.47,'Yogurt tubs, middle shelf.'],['Milk',.5,.78,'Milk jugs, bottom shelf.']],
+ 'produce-bins':[['Tomatoes',.2,.42,'Red tomatoes, left bin.'],['Onions',.52,.4,'Brown onions, center bin.'],['Ginger',.8,.33,'Fresh ginger, basket right.'],['Green chilies',.84,.5,'Green chilies, basket right, below the ginger.'],['Potatoes',.53,.82,'Potatoes, front crate.'],['Cilantro',.83,.1,'Cilantro bunches, chilled shelf top right.']],
+ 'freezer':[['Frozen samosas',.5,.17,'Frozen samosa boxes, top basket.'],['Samosa wrappers',.5,.47,'Samosa wrapper packs, middle basket.'],['Frozen parathas',.5,.78,'Frozen paratha packs, bottom basket.']],
+ 'snacks-pickles':[['Papad',.5,.25,'Papad packs, top shelf.'],['Mango pickle',.5,.7,'Mango pickle jars, lower shelf.']],
 };
 const SYNTHETIC=' AI-generated synthetic demo image.';
 
