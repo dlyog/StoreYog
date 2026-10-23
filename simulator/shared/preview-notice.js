@@ -17,7 +17,7 @@
       #preview-notice input{width:19px;height:19px;margin-top:2px;flex-shrink:0;accent-color:#315f43}
       #preview-notice .preview-actions{display:flex;gap:12px;flex-wrap:wrap}#preview-notice button{border:0;border-radius:10px;padding:13px 17px;font:600 15px system-ui;cursor:pointer;background:#285d40;color:white}#preview-notice button:disabled{opacity:.45;cursor:default}#preview-notice button.preview-leave{background:#edf0e9;color:#385441}
       #preview-notice :focus-visible,#preview-notice-reopen:focus-visible{outline:3px solid #429acc;outline-offset:3px}
-      #preview-notice-reopen{position:fixed;bottom:12px;right:16px;z-index:90;background:#fcfdf5;color:#31543e;border:1px solid #c8d9c8;border-radius:20px;padding:7px 13px;font:12px system-ui;cursor:pointer;box-shadow:0 3px 14px #102c1820}
+      #preview-notice-reopen{position:fixed;bottom:12px;right:16px;z-index:90;width:36px;height:36px;display:grid;place-items:center;padding:0;background:#fcfdf5;color:#31543e;border:1px solid #c8d9c8;border-radius:50%;cursor:pointer;box-shadow:0 3px 14px #102c1820}#preview-notice-reopen svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
       @media(max-width:480px){#preview-notice{padding:22px}#preview-notice h2{font-size:25px}#preview-notice .preview-actions{flex-direction:column}}
     </style>
     <span class="preview-label">StoreYog · Private preview</span>
@@ -34,7 +34,9 @@
   const reopen = document.createElement('button');
   reopen.id = 'preview-notice-reopen';
   reopen.type = 'button';
-  reopen.textContent = 'Preview notice';
+  reopen.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>';
+  reopen.setAttribute('aria-label', 'Preview notice');
+  reopen.title = 'Preview notice';
   reopen.setAttribute('aria-haspopup', 'dialog');
   document.body.append(dialog, reopen);
   const checkbox = dialog.querySelector('#preview-notice-ack');

@@ -25,7 +25,7 @@ Default listeners use loopback. Setup selects available frontend, private backen
 
 `server/owner.ts`, `owner-auth.ts`, `catalog.ts`, `store.ts`, `photos.ts` and `server/owner/` implement registration, scrypt password authentication, session/CSRF checks, catalog, receiving, POS, reviewed changes, restocks and reports. Each registered business starts empty. Tenant identity comes from its authenticated session/key, never model arguments. Checkout updates the same data used by MCP, rejects overselling and deduplicates retries. Expected counts reject stale edits. Simulated orders do not automatically increase stock; receiving does.
 
-Shelf photos are normalized/stripped with Sharp, marked with an owner-selected arrow and explicitly published. Customers receive pictures only when the store, product and current photo are published. Private files are not a static public directory. AI captions are optional suggestions requiring owner review; manual directions/photos work without them.
+Shelf photos are normalized/stripped with Sharp, marked with an owner-selected arrow and explicitly published. Customers receive pictures only when the store, product and current photo are published. Private files are not a static public directory. Shelf descriptions are written by the owner (or at ingestion time for demo images); there is no runtime AI captioning.
 
 ## Voice views and data truth
 

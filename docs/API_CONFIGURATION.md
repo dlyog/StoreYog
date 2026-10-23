@@ -6,9 +6,13 @@ Run `python3 setup.py --live` (Windows: `py setup.py --live`) for CLI prompts. A
 
 ## Chat completions
 
-Set `LLM_API` to a compatible provider base origin or its `/v1` base, `LLM_API_KEY` to your own key when required, and `TRAINIUM_LLM_MODEL` to a model that your account can use. The adapter sends `POST /v1/chat/completions`, Bearer authorization if configured, and JSON with `model`, `messages`, `max_tokens`, `temperature` and `stream:false`. It reads `choices[0].message.content`. The store agent expects JSON planning/reply instructions; exact stock quantities use verified MCP results directly.
+Set `LLM_API` to a compatible provider base origin or its `/v1` base, `LLM_API_KEY` to your own key when required, and `TRAINIUM_LLM_MODEL` to a model that your account can use. The adapter sends `POST /v1/chat/completions`, Bearer authorization if configured, and JSON with `model`, `messages`, `max_tokens`, `temperature` and `stream:false`. It reads `choices[0].message.content`. With a model configured, the web simulator follows the Alexa+ pattern: the model chooses the MCP tools, the server runs them, and the model answers from the real results (order approval stays in server code). Without a model, the credential-free mode routes common questions deterministically over the same real MCP tools.
 
-A configured provider is not guaranteed to support every OpenAI feature or this planning prompt. Restricted/newer model families may require different token parameters. Choose a model supporting this documented chat contract, or adjust and test the adapter. Automatic photo descriptions additionally require multimodal `image_url` input and owner review; manual shelf descriptions work without it.
+A configured provider is not guaranteed to support every OpenAI feature or this planning prompt. Restricted/newer model families may require different token parameters. Choose a model supporting this documented chat contract, or adjust and test the adapter.
+
+## StoreYog small tool-calling model (optional)
+
+`training/tool-model/` contains a 350M-parameter model recipe (`facebook/opt-350m`, after arXiv 2512.15943) trained on StoreYog conversations generated from the real MCP tools on the synthetic store. Serve it with `serve_small.py` on any GPU host and set `SIMULATOR_LLM_PROTOCOL=storeyog-small`, `SIMULATOR_LLM_URL=http://<host>:9010`. The prompt carries the store's current product names, so new products work without retraining. If the model states a product fact before calling a tool, the server forces a tool call. See `training/tool-model/README.md`.
 
 ## Speech-to-text
 

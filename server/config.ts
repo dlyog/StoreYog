@@ -13,5 +13,9 @@ export const config = {
   ttsVoice: process.env.TRAINIUM_TTS_VOICE || 'af_heart',
   llmUrl: (process.env.TRAINIUM_LLM_BASE_URL || process.env.LLM_API || '').replace(/\/$/, ''),
   llmModel: process.env.TRAINIUM_LLM_MODEL || '',
+  // Optional: the StoreYog small tool-calling model (training/tool-model) for the web simulator's Alexa+ flow.
+  simulatorLlmUrl: (process.env.SIMULATOR_LLM_URL || '').replace(/\/$/, ''),
+  simulatorLlmModel: process.env.SIMULATOR_LLM_MODEL || 'storeyog-opt-350m',
+  simulatorLlmProtocol: process.env.SIMULATOR_LLM_PROTOCOL === 'storeyog-small' && process.env.SIMULATOR_LLM_URL ? 'storeyog-small' : 'chat',
   timezone: process.env.STORE_TIMEZONE || 'America/Los_Angeles',
 };

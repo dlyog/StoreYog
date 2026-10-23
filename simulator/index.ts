@@ -28,7 +28,7 @@ function session(req:express.Request,res:express.Response){
 app.use('/store',storeProxy);app.use('/shop',storeProxy);
 app.get('/api/status',async(_req,res)=>{
  const probe=async(url:string)=>{if(url.startsWith('/'))return false;try{return (await labFetch(url,{signal:AbortSignal.timeout(2500)})).ok;}catch{return false;}};
- const mcp=await probe(config.mcpUrl.replace(/\/mcp$/,'/health'));const stt=!!config.sttUrl,tts=!!config.ttsUrl,llm=!!config.llmUrl; // Functional provider checks are performed by setup.py --live.
+ const mcp=await probe(config.mcpUrl.replace(/\/mcp$/,'/health'));const stt=!!config.sttUrl,tts=!!config.ttsUrl,llm=!!config.llmUrl||config.simulatorLlmProtocol==='storeyog-small'; // Functional provider checks are performed by setup.py --live.
 
  let storeInfo:any={};try{const identity=await fetch(new URL('/client/identity',config.mcpUrl),{headers:{Authorization:`Bearer ${config.mcpApiKey}`},signal:AbortSignal.timeout(3000)});if(identity.ok)storeInfo=await identity.json();}catch{}
  res.json({mcp,stt,tts,llm,...storeInfo,authenticated:!!storeInfo.storeId,consoleUrl:process.env.MCP_CONSOLE_URL||new URL('/console/',config.mcpUrl).href,demoMode:process.env.DEMO_MODE!=='false',provider:process.env.DEMO_MODE!=='false'?'scripted':process.env.ANTHROPIC_API_KEY?'anthropic':'local',model:process.env.ANTHROPIC_API_KEY?config.claudeModel:config.llmModel,voice:config.ttsVoice,timezone:config.timezone});
@@ -63,9 +63,11 @@ app.post('/api/reset',async(req,res)=>{
  try{const url=new URL('/internal/reset',config.mcpUrl);const r=await fetch(url,{method:'POST',headers:{'x-storeyog-internal':config.internalToken,Authorization:`Bearer ${config.mcpApiKey}`},signal:AbortSignal.timeout(5000)});if(!r.ok)throw new Error(`MCP reset returned ${r.status}. Start both services with npm run dev.`);sessions.clear();res.clearCookie('sp_session');res.json(await r.json());}catch(e){res.status(503).json({error:e instanceof Error?e.message:'Reset failed.'});}
 });
 const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:12*1024*1024,files:1}});
+// Whisper turns room noise or speaker echo into repeated filler, such as one token repeated dozens of times or a run of non-Latin symbols. Drop it instead of sending it to the assistant.
+function speechOrNoise(text:string){const t=text.trim();const words=t.split(/\s+/).filter(Boolean);const latin=(t.match(/[a-z]/gi)||[]).length;if(!latin||latin<t.replace(/[\s\p{P}\d]/gu,'').length*.5)return '';if(words.length>=6&&new Set(words.map(w=>w.toLowerCase())).size/words.length<.3)return '';return t;}
 app.post('/api/stt',upload.single('audio'),async(req,res)=>{
  if(!req.file)return res.status(400).json({error:'Attach microphone audio using the audio field.'});
- try{res.json({transcript:await transcribe(new Uint8Array(req.file.buffer),req.file.mimetype,req.file.originalname||'recording.webm')});}catch(e){res.status(502).json({error:`Speech recognition unavailable: ${e instanceof Error?e.message:'unknown error'}. You can type your request.`});}
+ try{res.json({transcript:speechOrNoise(await transcribe(new Uint8Array(req.file.buffer),req.file.mimetype,req.file.originalname||'recording.webm'))});}catch(e){res.status(502).json({error:`Speech recognition unavailable: ${e instanceof Error?e.message:'unknown error'}. You can type your request.`});}
 });
 app.post('/api/tts',async(req,res)=>{
  const text=req.body?.text;if(typeof text!=='string'||!text.trim()||text.length>3000)return res.status(400).json({error:'Provide 1–3000 characters of text.'});
